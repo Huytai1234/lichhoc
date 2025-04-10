@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Đồng bộ lịch học</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</head>
+<body>
+    <h1>Đồng bộ lịch học</h1>
+    <form method="POST" action="/start">
+        <label>Định danh (email sinh viên UEL, ví dụ: tenban@st.uel.edu.vn):</label>
+        <input type="email" name="user_id" required>
+        <input type="submit" value="Mở Chrome và bắt đầu">
+    </form>
+    <p>Sau khi nhấn nút, Chrome sẽ mở trang MyUEL. Vui lòng đăng nhập thủ công, vào trang thời khóa biểu, rồi quay lại đây để tiếp tục.</p>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
