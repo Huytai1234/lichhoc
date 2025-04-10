@@ -10,9 +10,11 @@
     <form method="POST" action="/start">
         <label>Định danh (email sinh viên UEL, ví dụ: tenban@st.uel.edu.vn):</label>
         <input type="email" name="user_id" required>
+        <label>Mật khẩu (mật khẩu Gmail do trường cấp):</label>
+        <input type="password" name="password" required>
         <input type="submit" value="Mở Chrome và bắt đầu">
     </form>
-    <p>Sau khi nhấn nút, Chrome sẽ mở trang MyUEL. Vui lòng đăng nhập thủ công, vào trang thời khóa biểu, rồi quay lại đây để tiếp tục.</p>
+    <p>Sau khi nhấn nút, ứng dụng sẽ tự động đăng nhập vào MyUEL bằng thông tin bạn cung cấp và đồng bộ thời khóa biểu.</p>
     {% if error %}
         <p class="error">{{ error }}</p>
     {% endif %}

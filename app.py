@@ -465,22 +465,43 @@ def index():
 def start():
     global global_driver
     user_id = request.form.get('user_id')
-    if not user_id:
-        return render_template('index.html', error="Vui lòng nhập định danh!")
-    # Kiểm tra định dạng email @st.uel.edu.vn
+    password = request.form.get('password')
+    if not user_id or not password:
+        return render_template('index.html', error="Vui lòng nhập đầy đủ định danh và mật khẩu!")
     if not re.match(r'^[a-zA-Z0-9._%+-]+@st\.uel\.edu\.vn$', user_id):
-        return render_template('index.html', error="Định danh không hợp lệ! Vui lòng sử dụng email sinh viên UEL (ví dụ: tenban@st.uel.edu.vn).")
+        return render_template('index.html', error="Định danh không hợp lệ! Vui lòng sử dụng email sinh viên UEL.")
+
     session['user_id'] = user_id
     driver = setup_driver()
     global_driver = driver
     driver.get("https://myuel.uel.edu.vn/")
+
     wait = WebDriverWait(driver, 90)
     try:
+        # Nhấn nút đăng nhập bằng UIS
         hoc_tap_giang_day = wait.until(EC.element_to_be_clickable((By.ID, "ctl11_btLoginUIS")))
         hoc_tap_giang_day.click()
-    except (TimeoutException, NoSuchElementException):
-        pass
-    wait.until(lambda driver: "myuel.uel.edu.vn" in driver.current_url)
+
+        # Chờ trang đăng nhập Google xuất hiện
+        wait.until(EC.presence_of_element_located((By.ID, "identifierId")))
+        email_input = driver.find_element(By.ID, "identifierId")
+        email_input.send_keys(user_id)
+        driver.find_element(By.ID, "identifierNext").click()
+
+        # Chờ trường mật khẩu
+        wait.until(EC.presence_of_element_located((By.NAME, "Passwd")))
+        password_input = driver.find_element(By.NAME, "Passwd")
+        password_input.send_keys(password)
+        driver.find_element(By.ID, "passwordNext").click()
+
+        # Chờ đăng nhập thành công và quay lại MyUEL
+        wait.until(lambda driver: "myuel.uel.edu.vn" in driver.current_url)
+    except (TimeoutException, NoSuchElementException) as e:
+        driver.quit()
+        global_driver = None
+        return render_template('index.html', error=f"Đăng nhập thất bại: {str(e)}. Vui lòng kiểm tra thông tin!")
+
+    # Điều hướng đến trang thời khóa biểu
     wait.until(EC.presence_of_element_located((By.XPATH, "//span[@class='rpText' and text()='Học vụ']")))
     hoc_vu_menu = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'rpLink') and .//span[@class='rpText' and text()='Học vụ']]")))
     hoc_vu_menu.click()
@@ -488,6 +509,7 @@ def start():
     thoikhoabieu_link = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[.//span[@class='rpText' and text()='Thời khóa biểu'] and contains(@href, 'Ph3wLiN1yCA')]")))
     thoikhoabieu_link.click()
     time.sleep(5)
+
     wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(text(), 'In thời khóa biểu') and contains(@href, 'Print.aspx')]")))
     nam_hoc_dropdown = wait.until(EC.presence_of_element_located((By.ID, "portlet_3750a397-90f5-4478-b67c-a8f0a1a4060b_ctl00_ddlNamHoc")))
     select_nam_hoc = Select(nam_hoc_dropdown)
