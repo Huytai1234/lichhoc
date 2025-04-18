@@ -1,4 +1,4 @@
-const FLASK_BACKEND_URL = 'http://localhost:5001';
+const FLASK_BACKEND_URL = 'https://lichhoc.onrender.com';
 // !!! QUAN TRỌNG: Đảm bảo pattern này khớp chính xác với phần đầu URL trang TKB MyUEL !!!
 const MYUEL_TKB_URL_PATTERN = 'https://myuel.uel.edu.vn/Default.aspx?PageId='; // <<< KIỂM TRA LẠI GIÁ TRỊ NÀY
 // --- ID CỦA CÁC PHẦN TỬ HTML TRÊN TRANG MYUEL (Cần kiểm tra lại) ---

@@ -13,7 +13,8 @@
   "host_permissions": [
     "https://myuel.uel.edu.vn/Modules/UIS/student/student_studyprogramhandler.aspx*",
     "https://myuel.uel.edu.vn/Default.aspx*",
-    "http://localhost:5001/*"
+    "http://localhost:5001/*",
+    "https://lichhoc.onrender.com/*"
   ],
   "oauth2": {
     "client_id": "93670792183-u9bppkkfaq23gutrh1djc672o73vhujf.apps.googleusercontent.com",
