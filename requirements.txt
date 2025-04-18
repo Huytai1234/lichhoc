@@ -6,4 +6,5 @@ google-auth>=2.0.0               # Cần cho Credentials class (có thể đã �
 beautifulsoup4==4.12.3
 lxml
 requests
-gunicorn==22.0.0 # Nếu bạn dùng gunicorn để deploy
+gunicorn==22.0.0                 # Dùng để chạy app trên server production
+flask_cors>=4.0.0                # Đảm bảo có flask_cors (phiên bản có thể thay đổi)

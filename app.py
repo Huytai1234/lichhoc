@@ -18,7 +18,7 @@ from flask_cors import CORS
 
 
 # --- Cấu hình cơ bản ---
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
 
 # --- KÍCH HOẠT CORS ---
@@ -32,7 +32,7 @@ logger.info(f"CORS enabled for origin: {EXTENSION_ORIGIN}")
 # ---------------------
 
 # !!! THAY ĐỔI secret key này !!!
-app.secret_key = 'doi-khoa-bi-mat-nay-ngay-lap-tuc-ver10' # <<< THAY ĐỔI KEY NÀY!
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'ban-can-thiet-lap-bien-moi-truong-FLASK_SECRET_KEY')
 
 # Cấu hình logging
 log_level = logging.DEBUG
@@ -363,4 +363,4 @@ def sync_from_extension():
 if __name__ == "__main__":
     print("-" * 50 + "\nStarting Flask Server - UEL Calendar Sync Backend (Batch Optimized)\n" + "-" * 50)
     is_debug = os.environ.get('FLASK_DEBUG') == '1' or app.debug; print(f"[*] Flask Mode: {'DEBUG' if is_debug else 'PRODUCTION'}"); print(f"[*] Log Level Configured: {logging.getLevelName(log_level)}"); print(f"[*] Log Level Effective: {logging.getLevelName(logger.getEffectiveLevel())}"); print(f"[*] Log File: {os.path.abspath('calendar_sync.log')}"); print(f"[*] Timetable Table ID: {TIMETABLE_TABLE_ID}"); print(f"[*] Date Span ID: {DATE_SPAN_ID}"); print(f"[*] Available Event Colors: {AVAILABLE_EVENT_COLORS}"); print(f"[*] Server running at: http://localhost:5001"); print("-" * 50 + "\nNotes:\n- Backend uses Batch API Calls.\n- Check logs.\n- !! CHANGE app.secret_key !!\n" + "-" * 50)
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5001)
