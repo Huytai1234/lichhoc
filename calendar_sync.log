@@ -1,0 +1,1118 @@
+2025-04-19 01:08:30,203 - INFO - app.py:45 - Flask application starting (Ext Auth, Batch Optimized, Indent Fixed)...
+2025-04-19 01:08:30,244 - INFO - _internal.py:97 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.136:5001
+2025-04-19 01:08:30,244 - INFO - _internal.py:97 - [33mPress CTRL+C to quit[0m
+2025-04-19 01:08:30,245 - INFO - _internal.py:97 -  * Restarting with stat
+2025-04-19 01:08:30,419 - INFO - app.py:45 - Flask application starting (Ext Auth, Batch Optimized, Indent Fixed)...
+2025-04-19 01:08:30,435 - WARNING - _internal.py:97 -  * Debugger is active!
+2025-04-19 01:08:30,442 - INFO - _internal.py:97 -  * Debugger PIN: 117-266-166
+2025-04-19 01:09:30,278 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:09:30,280 - DEBUG - app.py:253 - Sync Data: user='fff@st.uel.edu.vn', date='Từ ngày 21/04/2025 đến ngày 27/04/2025', html=Yes
+2025-04-19 01:09:30,280 - INFO - app.py:259 - Processing sync for user: fff@st.uel.edu.vn
+2025-04-19 01:09:30,286 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:09:30,286 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:09:30,289 - INFO - app.py:85 - Parsed week: 21/04/2025 - 27/04/2025
+2025-04-19 01:09:30,294 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:09:30,294 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:09:30,295 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:09:30,296 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:09:30,296 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:09:30,296 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:09:30,297 - DEBUG - app.py:193 - Final DateTime: Start=2025-04-22T12:30:00, End=2025-04-22T16:30:00
+2025-04-19 01:09:30,297 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:09:30,298 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:09:30,298 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:09:30,298 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:09:30,298 - DEBUG - app.py:193 - Final DateTime: Start=2025-04-24T12:30:00, End=2025-04-24T16:30:00
+2025-04-19 01:09:30,298 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:09:30,298 - INFO - app.py:205 - Extraction done. Found 2 events.
+2025-04-19 01:09:30,299 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '22/04/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-04-22T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-04-22T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '24/04/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-04-24T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-04-24T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:09:30,299 - INFO - app.py:273 - Extracted 2 events for 21/04/2025-27/04/2025
+2025-04-19 01:09:30,299 - INFO - app.py:295 - Fetching existing events: 2025-04-20T17:00:00Z to 2025-04-27T16:59:59Z
+2025-04-19 01:09:30,307 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-04-20T17%3A00%3A00Z&timeMax=2025-04-27T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:09:30,909 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:09:30,909 - INFO - app.py:326 - Processing 2 extracted events against 0 existing ones...
+2025-04-19 01:09:30,910 - DEBUG - app.py:336 - Event 1 ('Quản trị tài chính (E) [3]' Color: 1) marked for BATCH insert.
+2025-04-19 01:09:30,914 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:09:30,915 - DEBUG - app.py:336 - Event 2 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:09:30,918 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:09:30,918 - INFO - app.py:346 - Executing batch request to insert 2 events...
+2025-04-19 01:09:31,451 - INFO - app.py:235 - Batch request item event-1-Quản trị t succeeded. Event ID: 4vj1rfgpv7ifugfq46qvpfphmg
+2025-04-19 01:09:31,451 - INFO - app.py:235 - Batch request item event-2-Kinh doanh succeeded. Event ID: po48e40iake9fokf55o9v006q4
+2025-04-19 01:09:31,451 - INFO - app.py:351 - Batch executed. Callback results: Added=2, Errors=0
+2025-04-19 01:09:31,451 - INFO - app.py:362 - Sync done: user=fff@st.uel.edu.vn, week=21/04/2025-27/04/2025, Added=2, Skipped=0, Errors=0, Time=1.17s
+2025-04-19 01:09:31,454 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:09:31] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:13:09,737 - INFO - app.py:45 - Flask application starting (Ext Auth, Batch Optimized, Indent Fixed)...
+2025-04-19 01:13:09,775 - INFO - _internal.py:97 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.136:5001
+2025-04-19 01:13:09,776 - INFO - _internal.py:97 - [33mPress CTRL+C to quit[0m
+2025-04-19 01:13:09,776 - INFO - _internal.py:97 -  * Restarting with stat
+2025-04-19 01:13:09,952 - INFO - app.py:45 - Flask application starting (Ext Auth, Batch Optimized, Indent Fixed)...
+2025-04-19 01:13:09,969 - WARNING - _internal.py:97 -  * Debugger is active!
+2025-04-19 01:13:09,976 - INFO - _internal.py:97 -  * Debugger PIN: 117-266-166
+2025-04-19 01:14:03,877 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:03,879 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 21/04/2025 đến ngày 27/04/2025', html=Yes
+2025-04-19 01:14:03,880 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:03,886 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:03,886 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:03,890 - INFO - app.py:85 - Parsed week: 21/04/2025 - 27/04/2025
+2025-04-19 01:14:03,896 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:03,896 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:03,896 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:03,896 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:03,897 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:03,897 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:03,897 - DEBUG - app.py:193 - Final DateTime: Start=2025-04-22T12:30:00, End=2025-04-22T16:30:00
+2025-04-19 01:14:03,897 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:03,897 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:03,898 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:03,898 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:03,898 - DEBUG - app.py:193 - Final DateTime: Start=2025-04-24T12:30:00, End=2025-04-24T16:30:00
+2025-04-19 01:14:03,898 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:03,898 - INFO - app.py:205 - Extraction done. Found 2 events.
+2025-04-19 01:14:03,898 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '22/04/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-04-22T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-04-22T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '24/04/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-04-24T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-04-24T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:03,898 - INFO - app.py:273 - Extracted 2 events for 21/04/2025-27/04/2025
+2025-04-19 01:14:03,898 - INFO - app.py:295 - Fetching existing events: 2025-04-20T17:00:00Z to 2025-04-27T16:59:59Z
+2025-04-19 01:14:03,902 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-04-20T17%3A00%3A00Z&timeMax=2025-04-27T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:04,594 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:04,594 - INFO - app.py:326 - Processing 2 extracted events against 0 existing ones...
+2025-04-19 01:14:04,594 - DEBUG - app.py:336 - Event 1 ('Quản trị tài chính (E) [3]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:04,600 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:04,600 - DEBUG - app.py:336 - Event 2 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:04,605 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:04,605 - INFO - app.py:346 - Executing batch request to insert 2 events...
+2025-04-19 01:14:05,141 - INFO - app.py:235 - Batch request item event-1-Quản trị t succeeded. Event ID: ousbhv02c9lkqr3cg1tbohq9bs
+2025-04-19 01:14:05,141 - INFO - app.py:235 - Batch request item event-2-Kinh doanh succeeded. Event ID: c1gia7clflrncq62p24t3336os
+2025-04-19 01:14:05,142 - INFO - app.py:351 - Batch executed. Callback results: Added=2, Errors=0
+2025-04-19 01:14:05,142 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=21/04/2025-27/04/2025, Added=2, Skipped=0, Errors=0, Time=1.26s
+2025-04-19 01:14:05,143 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:05] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:06,162 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:06,163 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 28/04/2025 đến ngày 04/05/2025', html=Yes
+2025-04-19 01:14:06,163 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:06,165 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:06,165 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:06,165 - INFO - app.py:85 - Parsed week: 28/04/2025 - 04/05/2025
+2025-04-19 01:14:06,167 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:06,167 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:06,167 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:06,168 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:06,168 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:06,168 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:06,168 - DEBUG - app.py:193 - Final DateTime: Start=2025-04-29T12:30:00, End=2025-04-29T16:30:00
+2025-04-19 01:14:06,168 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:06,168 - INFO - app.py:205 - Extraction done. Found 1 events.
+2025-04-19 01:14:06,168 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '29/04/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-04-29T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-04-29T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:06,168 - INFO - app.py:273 - Extracted 1 events for 28/04/2025-04/05/2025
+2025-04-19 01:14:06,168 - INFO - app.py:295 - Fetching existing events: 2025-04-27T17:00:00Z to 2025-05-04T16:59:59Z
+2025-04-19 01:14:06,174 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-04-27T17%3A00%3A00Z&timeMax=2025-05-04T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:06,691 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:06,691 - INFO - app.py:326 - Processing 1 extracted events against 0 existing ones...
+2025-04-19 01:14:06,691 - DEBUG - app.py:336 - Event 1 ('Quản trị tài chính (E) [3]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:06,699 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:06,699 - INFO - app.py:346 - Executing batch request to insert 1 events...
+2025-04-19 01:14:07,477 - INFO - app.py:235 - Batch request item event-1-Quản trị t succeeded. Event ID: ik8js91odv3eo642503advlo2s
+2025-04-19 01:14:07,477 - INFO - app.py:351 - Batch executed. Callback results: Added=1, Errors=0
+2025-04-19 01:14:07,477 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=28/04/2025-04/05/2025, Added=1, Skipped=0, Errors=0, Time=1.32s
+2025-04-19 01:14:07,478 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:07] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:08,494 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:08,495 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 05/05/2025 đến ngày 11/05/2025', html=Yes
+2025-04-19 01:14:08,495 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:08,498 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:08,498 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:08,498 - INFO - app.py:85 - Parsed week: 05/05/2025 - 11/05/2025
+2025-04-19 01:14:08,500 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:08,500 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:08,501 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:08,501 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:08,501 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:08,501 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:08,501 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-06T07:00:00, End=2025-05-06T09:30:00
+2025-04-19 01:14:08,501 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:08,504 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:08,504 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:08,504 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:08,504 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-06T12:30:00, End=2025-05-06T16:30:00
+2025-04-19 01:14:08,504 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:08,505 - DEBUG - app.py:142 - Cell(2,3), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:08,505 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:08,505 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:08,505 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-07T07:00:00, End=2025-05-07T09:30:00
+2025-04-19 01:14:08,505 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:08,505 - DEBUG - app.py:142 - Cell(2,3), Block 2: Lines=['Kế toán tài chính 2 (CFAB) [4]', '9h45 -> 12h15', 'Tiết 4-6', 'GV:']
+2025-04-19 01:14:08,505 - DEBUG - app.py:160 - Time match: Raw='9h45 -> 12h15'
+2025-04-19 01:14:08,506 - DEBUG - app.py:164 - Periods regex: '4-6'
+2025-04-19 01:14:08,506 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-07T09:45:00, End=2025-05-07T12:15:00
+2025-04-19 01:14:08,506 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='4-6'
+2025-04-19 01:14:08,506 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:08,506 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:08,506 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:08,506 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-08T07:00:00, End=2025-05-08T09:30:00
+2025-04-19 01:14:08,506 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:08,507 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:08,507 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:08,507 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:08,507 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-08T12:30:00, End=2025-05-08T16:30:00
+2025-04-19 01:14:08,507 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:08,507 - INFO - app.py:205 - Extraction done. Found 6 events.
+2025-04-19 01:14:08,508 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '06/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-06T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-06T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '06/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-06T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-06T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '07/05/2025',
+  'day_name': 'THỨ 4',
+  'description_extra': '',
+  'end_datetime': '2025-05-07T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-07T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '07/05/2025',
+  'day_name': 'THỨ 4',
+  'description_extra': '',
+  'end_datetime': '2025-05-07T12:15:00',
+  'location': '',
+  'periods': '4-6',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-07T09:45:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '9h45 -> 12h15'},
+ {'date': '08/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-08T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-08T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '08/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-08T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-08T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:08,508 - INFO - app.py:273 - Extracted 6 events for 05/05/2025-11/05/2025
+2025-04-19 01:14:08,508 - INFO - app.py:295 - Fetching existing events: 2025-05-04T17:00:00Z to 2025-05-11T16:59:59Z
+2025-04-19 01:14:08,516 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-05-04T17%3A00%3A00Z&timeMax=2025-05-11T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:09,078 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:09,079 - INFO - app.py:326 - Processing 6 extracted events against 0 existing ones...
+2025-04-19 01:14:09,079 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:09,086 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,087 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:09,093 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,093 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:09,098 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,098 - DEBUG - app.py:336 - Event 4 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:09,103 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,103 - DEBUG - app.py:336 - Event 5 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:09,106 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,106 - DEBUG - app.py:336 - Event 6 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:09,109 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:09,109 - INFO - app.py:346 - Executing batch request to insert 6 events...
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: thhtdsf8anr4hkmg0hp4vnr1bc
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: 0egsgahhoj16e6rkhl7nfms49o
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: on0rp1bdmpn3gval8d6decq554
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-4-Kế toán tà succeeded. Event ID: bv2im83g4c2u0o7k7ihfrge15g
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-5-Kế toán tà succeeded. Event ID: 7rntrl4i29tq1spl640p890rl4
+2025-04-19 01:14:10,386 - INFO - app.py:235 - Batch request item event-6-Kinh doanh succeeded. Event ID: mbc5au9l1ta96c9an820hhth1o
+2025-04-19 01:14:10,387 - INFO - app.py:351 - Batch executed. Callback results: Added=6, Errors=0
+2025-04-19 01:14:10,387 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=05/05/2025-11/05/2025, Added=6, Skipped=0, Errors=0, Time=1.89s
+2025-04-19 01:14:10,388 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:10] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:11,409 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:11,409 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 12/05/2025 đến ngày 18/05/2025', html=Yes
+2025-04-19 01:14:11,409 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:11,412 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:11,412 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:11,412 - INFO - app.py:85 - Parsed week: 12/05/2025 - 18/05/2025
+2025-04-19 01:14:11,414 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:11,414 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:11,414 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:11,414 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:11,414 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:11,414 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:11,414 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-13T07:00:00, End=2025-05-13T09:30:00
+2025-04-19 01:14:11,414 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:11,415 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:11,415 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:11,415 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:11,415 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-13T12:30:00, End=2025-05-13T16:30:00
+2025-04-19 01:14:11,415 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:11,415 - DEBUG - app.py:142 - Cell(2,3), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:11,415 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:11,415 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:11,415 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-14T07:00:00, End=2025-05-14T09:30:00
+2025-04-19 01:14:11,416 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:11,416 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:11,416 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:11,416 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:11,416 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-15T07:00:00, End=2025-05-15T09:30:00
+2025-04-19 01:14:11,416 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:11,416 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:11,416 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:11,416 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:11,417 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-15T12:30:00, End=2025-05-15T16:30:00
+2025-04-19 01:14:11,417 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:11,417 - INFO - app.py:205 - Extraction done. Found 5 events.
+2025-04-19 01:14:11,417 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '13/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-13T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-13T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '13/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-13T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-13T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '14/05/2025',
+  'day_name': 'THỨ 4',
+  'description_extra': '',
+  'end_datetime': '2025-05-14T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-14T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '15/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-15T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-15T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '15/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-15T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-15T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:11,418 - INFO - app.py:273 - Extracted 5 events for 12/05/2025-18/05/2025
+2025-04-19 01:14:11,418 - INFO - app.py:295 - Fetching existing events: 2025-05-11T17:00:00Z to 2025-05-18T16:59:59Z
+2025-04-19 01:14:11,423 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-05-11T17%3A00%3A00Z&timeMax=2025-05-18T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:11,943 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:11,943 - INFO - app.py:326 - Processing 5 extracted events against 0 existing ones...
+2025-04-19 01:14:11,943 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:11,948 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:11,948 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:11,952 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:11,952 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:11,955 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:11,955 - DEBUG - app.py:336 - Event 4 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:11,959 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:11,959 - DEBUG - app.py:336 - Event 5 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:11,963 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:11,963 - INFO - app.py:346 - Executing batch request to insert 5 events...
+2025-04-19 01:14:12,749 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: m77bcm2c0ahpsldqv2rbnkkt4c
+2025-04-19 01:14:12,749 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: qdg0eueikqt54uduk2e3levc5o
+2025-04-19 01:14:12,749 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: j81gd4b6epk959079hkiles0g0
+2025-04-19 01:14:12,749 - INFO - app.py:235 - Batch request item event-4-Kế toán tà succeeded. Event ID: 714q11g7isgjh8sd7c1ik22970
+2025-04-19 01:14:12,749 - INFO - app.py:235 - Batch request item event-5-Kinh doanh succeeded. Event ID: 4a60i596j5e8ltfccdtotialtc
+2025-04-19 01:14:12,749 - INFO - app.py:351 - Batch executed. Callback results: Added=5, Errors=0
+2025-04-19 01:14:12,750 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=12/05/2025-18/05/2025, Added=5, Skipped=0, Errors=0, Time=1.34s
+2025-04-19 01:14:12,750 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:12] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:13,765 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:13,766 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 19/05/2025 đến ngày 25/05/2025', html=Yes
+2025-04-19 01:14:13,766 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:13,768 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:13,768 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:13,768 - INFO - app.py:85 - Parsed week: 19/05/2025 - 25/05/2025
+2025-04-19 01:14:13,769 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:13,769 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:13,769 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:13,779 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:13,780 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:13,780 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:13,780 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-20T07:00:00, End=2025-05-20T09:30:00
+2025-04-19 01:14:13,780 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:13,780 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:13,781 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:13,781 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:13,781 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-20T12:30:00, End=2025-05-20T16:30:00
+2025-04-19 01:14:13,781 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:13,782 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:13,782 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:13,782 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:13,782 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-22T07:00:00, End=2025-05-22T09:30:00
+2025-04-19 01:14:13,782 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:13,782 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:13,782 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:13,783 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:13,783 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-22T12:30:00, End=2025-05-22T16:30:00
+2025-04-19 01:14:13,783 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:13,783 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:13,784 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '20/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-20T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-20T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '20/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-20T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-20T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '22/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-22T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-22T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '22/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-22T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-22T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:13,784 - INFO - app.py:273 - Extracted 4 events for 19/05/2025-25/05/2025
+2025-04-19 01:14:13,784 - INFO - app.py:295 - Fetching existing events: 2025-05-18T17:00:00Z to 2025-05-25T16:59:59Z
+2025-04-19 01:14:13,791 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-05-18T17%3A00%3A00Z&timeMax=2025-05-25T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:14,341 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:14,342 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:14,342 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:14,346 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:14,347 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:14,351 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:14,351 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:14,355 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:14,355 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:14,358 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:14,359 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:14,924 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: g3htojr1rddudehb478hsa8us4
+2025-04-19 01:14:14,925 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: e5lnllcif55sel3uio243fvvg8
+2025-04-19 01:14:14,925 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: spkujs3knf4fboq0odlsqcff2s
+2025-04-19 01:14:14,926 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 5f23tt61152qta6l6tsoff3ce4
+2025-04-19 01:14:14,926 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:14,926 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=19/05/2025-25/05/2025, Added=4, Skipped=0, Errors=0, Time=1.16s
+2025-04-19 01:14:14,927 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:14] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:15,947 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:15,947 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 26/05/2025 đến ngày 01/06/2025', html=Yes
+2025-04-19 01:14:15,947 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:15,950 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:15,950 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:15,950 - INFO - app.py:85 - Parsed week: 26/05/2025 - 01/06/2025
+2025-04-19 01:14:15,951 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:15,951 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:15,951 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:15,952 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:15,952 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:15,952 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:15,952 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-27T07:00:00, End=2025-05-27T09:30:00
+2025-04-19 01:14:15,952 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:15,952 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:15,953 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:15,953 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:15,953 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-27T12:30:00, End=2025-05-27T16:30:00
+2025-04-19 01:14:15,953 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:15,953 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:15,953 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:15,953 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:15,953 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-29T07:00:00, End=2025-05-29T09:30:00
+2025-04-19 01:14:15,953 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:15,954 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:15,954 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:15,954 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:15,954 - DEBUG - app.py:193 - Final DateTime: Start=2025-05-29T12:30:00, End=2025-05-29T16:30:00
+2025-04-19 01:14:15,954 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:15,954 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:15,955 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '27/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-27T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-27T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '27/05/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-05-27T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-27T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '29/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-29T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-29T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '29/05/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-05-29T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-05-29T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:15,955 - INFO - app.py:273 - Extracted 4 events for 26/05/2025-01/06/2025
+2025-04-19 01:14:15,955 - INFO - app.py:295 - Fetching existing events: 2025-05-25T17:00:00Z to 2025-06-01T16:59:59Z
+2025-04-19 01:14:15,960 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-05-25T17%3A00%3A00Z&timeMax=2025-06-01T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:16,654 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:16,654 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:16,654 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:16,659 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:16,660 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:16,665 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:16,665 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:16,670 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:16,670 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:16,674 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:16,674 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:17,302 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: fnjevlc875vgfairs10rbr3j18
+2025-04-19 01:14:17,302 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: 5839lmbk2hj25hmulne4pdckmg
+2025-04-19 01:14:17,302 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: 6o3kqqf4bc77qgafqbdu3esb64
+2025-04-19 01:14:17,302 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 083sj4p5ksiv3rf0qes7nstuv4
+2025-04-19 01:14:17,303 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:17,303 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=26/05/2025-01/06/2025, Added=4, Skipped=0, Errors=0, Time=1.36s
+2025-04-19 01:14:17,304 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:17] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:18,323 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:18,323 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 02/06/2025 đến ngày 08/06/2025', html=Yes
+2025-04-19 01:14:18,323 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:18,328 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:18,328 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:18,328 - INFO - app.py:85 - Parsed week: 02/06/2025 - 08/06/2025
+2025-04-19 01:14:18,331 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:18,331 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:18,331 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:18,332 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:18,332 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:18,332 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:18,332 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-03T07:00:00, End=2025-06-03T09:30:00
+2025-04-19 01:14:18,332 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:18,332 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:18,332 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:18,332 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:18,333 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-03T12:30:00, End=2025-06-03T16:30:00
+2025-04-19 01:14:18,333 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:18,333 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:18,333 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:18,333 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:18,333 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-05T07:00:00, End=2025-06-05T09:30:00
+2025-04-19 01:14:18,333 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:18,334 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:18,334 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:18,334 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:18,334 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-05T12:30:00, End=2025-06-05T16:30:00
+2025-04-19 01:14:18,334 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:18,334 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:18,335 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '03/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-03T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-03T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '03/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-03T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-03T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '05/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-05T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-05T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '05/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-05T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-05T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:18,335 - INFO - app.py:273 - Extracted 4 events for 02/06/2025-08/06/2025
+2025-04-19 01:14:18,335 - INFO - app.py:295 - Fetching existing events: 2025-06-01T17:00:00Z to 2025-06-08T16:59:59Z
+2025-04-19 01:14:18,342 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-06-01T17%3A00%3A00Z&timeMax=2025-06-08T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:18,868 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:18,869 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:18,869 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:18,877 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:18,878 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:18,883 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:18,884 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:18,890 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:18,891 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:18,895 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:18,895 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:19,595 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: 9l7u4hb5av56vs52135dg2bl58
+2025-04-19 01:14:19,595 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: fcroqcsflgvr911ufnfl3fkdlk
+2025-04-19 01:14:19,595 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: d1t5voa2a9i2db1d98odd99rhc
+2025-04-19 01:14:19,595 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 4vb9c9hlqutm9jhlc1s4knnvgk
+2025-04-19 01:14:19,596 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:19,596 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=02/06/2025-08/06/2025, Added=4, Skipped=0, Errors=0, Time=1.27s
+2025-04-19 01:14:19,597 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:19] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:20,619 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:20,620 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 09/06/2025 đến ngày 15/06/2025', html=Yes
+2025-04-19 01:14:20,620 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:20,624 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:20,624 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:20,624 - INFO - app.py:85 - Parsed week: 09/06/2025 - 15/06/2025
+2025-04-19 01:14:20,626 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:20,626 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:20,626 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:20,627 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:20,627 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:20,627 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:20,627 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-10T07:00:00, End=2025-06-10T09:30:00
+2025-04-19 01:14:20,627 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:20,627 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:20,627 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:20,627 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:20,627 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-10T12:30:00, End=2025-06-10T16:30:00
+2025-04-19 01:14:20,628 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:20,628 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:20,628 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:20,628 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:20,628 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-12T07:00:00, End=2025-06-12T09:30:00
+2025-04-19 01:14:20,628 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:20,628 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:20,629 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:20,629 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:20,629 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-12T12:30:00, End=2025-06-12T16:30:00
+2025-04-19 01:14:20,629 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:20,629 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:20,629 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '10/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-10T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-10T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '10/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-10T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-10T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '12/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-12T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-12T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '12/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-12T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-12T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:20,629 - INFO - app.py:273 - Extracted 4 events for 09/06/2025-15/06/2025
+2025-04-19 01:14:20,630 - INFO - app.py:295 - Fetching existing events: 2025-06-08T17:00:00Z to 2025-06-15T16:59:59Z
+2025-04-19 01:14:20,635 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-06-08T17%3A00%3A00Z&timeMax=2025-06-15T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:21,269 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:21,269 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:21,269 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:21,278 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:21,278 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:21,284 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:21,284 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:21,289 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:21,289 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:21,293 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:21,293 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:22,117 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: cs455dra5kqs27silfv9b3o3qk
+2025-04-19 01:14:22,117 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: m4rk05jcljt6okt9e6vuf79mlk
+2025-04-19 01:14:22,117 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: h8a3qs19coolmc4ab934fjs5kg
+2025-04-19 01:14:22,117 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 1jnu72qnmu59vu6abb4pqvcc40
+2025-04-19 01:14:22,117 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:22,117 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=09/06/2025-15/06/2025, Added=4, Skipped=0, Errors=0, Time=1.50s
+2025-04-19 01:14:22,118 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:22] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:23,132 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:23,133 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 16/06/2025 đến ngày 22/06/2025', html=Yes
+2025-04-19 01:14:23,133 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:23,140 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:23,140 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:23,140 - INFO - app.py:85 - Parsed week: 16/06/2025 - 22/06/2025
+2025-04-19 01:14:23,142 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:23,142 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:23,142 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:23,142 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:23,142 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:23,142 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:23,142 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-17T07:00:00, End=2025-06-17T09:30:00
+2025-04-19 01:14:23,143 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:23,143 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:23,143 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:23,143 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:23,143 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-17T12:30:00, End=2025-06-17T16:30:00
+2025-04-19 01:14:23,143 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:23,144 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:23,144 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:23,144 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:23,144 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-19T07:00:00, End=2025-06-19T09:30:00
+2025-04-19 01:14:23,144 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:23,144 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:23,144 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:23,144 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:23,144 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-19T12:30:00, End=2025-06-19T16:30:00
+2025-04-19 01:14:23,144 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:23,144 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:23,145 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '17/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-17T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-17T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '17/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-17T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-17T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '19/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-19T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-19T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '19/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-19T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-19T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:23,145 - INFO - app.py:273 - Extracted 4 events for 16/06/2025-22/06/2025
+2025-04-19 01:14:23,145 - INFO - app.py:295 - Fetching existing events: 2025-06-15T17:00:00Z to 2025-06-22T16:59:59Z
+2025-04-19 01:14:23,151 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-06-15T17%3A00%3A00Z&timeMax=2025-06-22T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:23,700 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:23,700 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:23,700 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:23,706 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:23,706 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:23,713 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:23,713 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:23,718 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:23,718 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:23,723 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:23,723 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:24,522 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: 14frmeu9rcj8b17foivf7lqp2g
+2025-04-19 01:14:24,523 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: ksb3i2upopjop7a65t6bfksgec
+2025-04-19 01:14:24,523 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: 2tueieh4rct270taj45jr4tabk
+2025-04-19 01:14:24,523 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 8uoshislucc88n8qndtjv5a3m4
+2025-04-19 01:14:24,523 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:24,523 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=16/06/2025-22/06/2025, Added=4, Skipped=0, Errors=0, Time=1.39s
+2025-04-19 01:14:24,524 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:24] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:25,542 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:25,542 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 23/06/2025 đến ngày 29/06/2025', html=Yes
+2025-04-19 01:14:25,543 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:25,547 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:25,548 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:25,548 - INFO - app.py:85 - Parsed week: 23/06/2025 - 29/06/2025
+2025-04-19 01:14:25,549 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:25,549 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:25,549 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:25,550 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:25,550 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:25,550 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:25,550 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-24T07:00:00, End=2025-06-24T09:30:00
+2025-04-19 01:14:25,550 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:25,550 - DEBUG - app.py:142 - Cell(2,2), Block 2: Lines=['Quản trị tài chính (E) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:25,550 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:25,550 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:25,551 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-24T12:30:00, End=2025-06-24T16:30:00
+2025-04-19 01:14:25,551 - DEBUG - app.py:199 - Prepared: Sub='Quản trị tài chính (E) [3]', P='7-10.5'
+2025-04-19 01:14:25,551 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:25,551 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:25,551 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:25,551 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-26T07:00:00, End=2025-06-26T09:30:00
+2025-04-19 01:14:25,551 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:25,552 - DEBUG - app.py:142 - Cell(2,4), Block 2: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:25,552 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:25,552 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:25,552 - DEBUG - app.py:193 - Final DateTime: Start=2025-06-26T12:30:00, End=2025-06-26T16:30:00
+2025-04-19 01:14:25,552 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:25,552 - INFO - app.py:205 - Extraction done. Found 4 events.
+2025-04-19 01:14:25,552 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '24/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-24T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-24T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '24/06/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-06-24T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-24T12:30:00',
+  'subject': 'Quản trị tài chính (E) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'},
+ {'date': '26/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-26T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-26T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '26/06/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-06-26T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-06-26T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:25,553 - INFO - app.py:273 - Extracted 4 events for 23/06/2025-29/06/2025
+2025-04-19 01:14:25,553 - INFO - app.py:295 - Fetching existing events: 2025-06-22T17:00:00Z to 2025-06-29T16:59:59Z
+2025-04-19 01:14:25,560 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-06-22T17%3A00%3A00Z&timeMax=2025-06-29T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:26,090 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:26,092 - INFO - app.py:326 - Processing 4 extracted events against 0 existing ones...
+2025-04-19 01:14:26,092 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:26,099 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:26,100 - DEBUG - app.py:336 - Event 2 ('Quản trị tài chính (E) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:26,103 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:26,103 - DEBUG - app.py:336 - Event 3 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:26,107 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:26,107 - DEBUG - app.py:336 - Event 4 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 3) marked for BATCH insert.
+2025-04-19 01:14:26,112 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:26,112 - INFO - app.py:346 - Executing batch request to insert 4 events...
+2025-04-19 01:14:26,837 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: elll6rg11okc0s2rnfcj3ctth0
+2025-04-19 01:14:26,838 - INFO - app.py:235 - Batch request item event-2-Quản trị t succeeded. Event ID: 5324b1r8rdmv4ictia0s5amef4
+2025-04-19 01:14:26,838 - INFO - app.py:235 - Batch request item event-3-Kế toán tà succeeded. Event ID: rocloc9i1g3v3tqjjrip67lujs
+2025-04-19 01:14:26,838 - INFO - app.py:235 - Batch request item event-4-Kinh doanh succeeded. Event ID: 9teu1ibp4bg01mkec4crq5qgrc
+2025-04-19 01:14:26,838 - INFO - app.py:351 - Batch executed. Callback results: Added=4, Errors=0
+2025-04-19 01:14:26,838 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=23/06/2025-29/06/2025, Added=4, Skipped=0, Errors=0, Time=1.30s
+2025-04-19 01:14:26,839 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:26] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:27,857 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:27,857 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 30/06/2025 đến ngày 06/07/2025', html=Yes
+2025-04-19 01:14:27,857 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:27,862 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:27,862 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:27,862 - INFO - app.py:85 - Parsed week: 30/06/2025 - 06/07/2025
+2025-04-19 01:14:27,865 - DEBUG - app.py:99 - Headers: ['PHÒNG', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7', 'CHỦ NHẬT']
+2025-04-19 01:14:27,865 - INFO - app.py:114 - Header: RoomIdx=0, DayIndices={'THỨ 2': 1, 'THỨ 3': 2, 'THỨ 4': 3, 'THỨ 5': 4, 'THỨ 6': 5, 'THỨ 7': 6, 'CHỦ NHẬT': 7}
+2025-04-19 01:14:27,865 - DEBUG - app.py:125 - Row 2: Room='B1.305'
+2025-04-19 01:14:27,866 - DEBUG - app.py:142 - Cell(2,2), Block 1: Lines=['Kế toán tài chính 2 (CFAB) [4]', '7h00 -> 9h30', 'Tiết 1-3', 'GV:']
+2025-04-19 01:14:27,866 - DEBUG - app.py:160 - Time match: Raw='7h00 -> 9h30'
+2025-04-19 01:14:27,866 - DEBUG - app.py:164 - Periods regex: '1-3'
+2025-04-19 01:14:27,866 - DEBUG - app.py:193 - Final DateTime: Start=2025-07-01T07:00:00, End=2025-07-01T09:30:00
+2025-04-19 01:14:27,866 - DEBUG - app.py:199 - Prepared: Sub='Kế toán tài chính 2 (CFAB) [4]', P='1-3'
+2025-04-19 01:14:27,867 - DEBUG - app.py:142 - Cell(2,4), Block 1: Lines=['Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', '12h30 -> 16h30', 'Tiết 7-10.5', 'GV:']
+2025-04-19 01:14:27,867 - DEBUG - app.py:160 - Time match: Raw='12h30 -> 16h30'
+2025-04-19 01:14:27,867 - DEBUG - app.py:164 - Periods regex: '7-10.5'
+2025-04-19 01:14:27,867 - DEBUG - app.py:193 - Final DateTime: Start=2025-07-03T12:30:00, End=2025-07-03T16:30:00
+2025-04-19 01:14:27,867 - DEBUG - app.py:199 - Prepared: Sub='Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]', P='7-10.5'
+2025-04-19 01:14:27,867 - INFO - app.py:205 - Extraction done. Found 2 events.
+2025-04-19 01:14:27,868 - DEBUG - app.py:206 - --- Final Extracted Schedule List (No Color) ---
+[{'date': '01/07/2025',
+  'day_name': 'THỨ 3',
+  'description_extra': '',
+  'end_datetime': '2025-07-01T09:30:00',
+  'location': '',
+  'periods': '1-3',
+  'room': 'B1.305',
+  'start_datetime': '2025-07-01T07:00:00',
+  'subject': 'Kế toán tài chính 2 (CFAB) [4]',
+  'teacher': '',
+  'time_range': '7h00 -> 9h30'},
+ {'date': '03/07/2025',
+  'day_name': 'THỨ 5',
+  'description_extra': '',
+  'end_datetime': '2025-07-03T16:30:00',
+  'location': '',
+  'periods': '7-10.5',
+  'room': 'B1.305',
+  'start_datetime': '2025-07-03T12:30:00',
+  'subject': 'Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]',
+  'teacher': '',
+  'time_range': '12h30 -> 16h30'}]
+--- End List ---
+2025-04-19 01:14:27,868 - INFO - app.py:273 - Extracted 2 events for 30/06/2025-06/07/2025
+2025-04-19 01:14:27,868 - INFO - app.py:295 - Fetching existing events: 2025-06-29T17:00:00Z to 2025-07-06T16:59:59Z
+2025-04-19 01:14:27,876 - DEBUG - discovery.py:1256 - URL being requested: GET https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2025-06-29T17%3A00%3A00Z&timeMax=2025-07-06T16%3A59%3A59Z&singleEvents=true&maxResults=250&alt=json
+2025-04-19 01:14:28,426 - INFO - app.py:310 - Found 0 existing events details in Google Calendar for the week.
+2025-04-19 01:14:28,426 - INFO - app.py:326 - Processing 2 extracted events against 0 existing ones...
+2025-04-19 01:14:28,426 - DEBUG - app.py:336 - Event 1 ('Kế toán tài chính 2 (CFAB) [4]' Color: 1) marked for BATCH insert.
+2025-04-19 01:14:28,435 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:28,435 - DEBUG - app.py:336 - Event 2 ('Kinh doanh-công nghệ và tài chính - BTF 1 (CFAB) [3]' Color: 2) marked for BATCH insert.
+2025-04-19 01:14:28,440 - DEBUG - discovery.py:1256 - URL being requested: POST https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json
+2025-04-19 01:14:28,441 - INFO - app.py:346 - Executing batch request to insert 2 events...
+2025-04-19 01:14:28,999 - INFO - app.py:235 - Batch request item event-1-Kế toán tà succeeded. Event ID: o1vbhb85t1ua7i60pg05c48hbg
+2025-04-19 01:14:28,999 - INFO - app.py:235 - Batch request item event-2-Kinh doanh succeeded. Event ID: o22f5f69c0jc8ti5e7rlcb1vfg
+2025-04-19 01:14:28,999 - INFO - app.py:351 - Batch executed. Callback results: Added=2, Errors=0
+2025-04-19 01:14:28,999 - INFO - app.py:362 - Sync done: user=locnt23405e@st.uel.edu.vn, week=30/06/2025-06/07/2025, Added=2, Skipped=0, Errors=0, Time=1.14s
+2025-04-19 01:14:29,000 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:29] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:30,022 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:30,023 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 07/07/2025 đến ngày 13/07/2025', html=Yes
+2025-04-19 01:14:30,023 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:30,025 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:30,025 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:30,025 - INFO - app.py:85 - Parsed week: 07/07/2025 - 13/07/2025
+2025-04-19 01:14:30,029 - INFO - app.py:273 - Extracted 0 events for 07/07/2025-13/07/2025
+2025-04-19 01:14:30,030 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:30] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:31,048 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:31,048 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 14/07/2025 đến ngày 20/07/2025', html=Yes
+2025-04-19 01:14:31,048 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:31,051 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:31,051 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:31,051 - INFO - app.py:85 - Parsed week: 14/07/2025 - 20/07/2025
+2025-04-19 01:14:31,052 - INFO - app.py:273 - Extracted 0 events for 14/07/2025-20/07/2025
+2025-04-19 01:14:31,052 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:31] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:32,071 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:32,072 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 21/07/2025 đến ngày 27/07/2025', html=Yes
+2025-04-19 01:14:32,072 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:32,074 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:32,075 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:32,075 - INFO - app.py:85 - Parsed week: 21/07/2025 - 27/07/2025
+2025-04-19 01:14:32,075 - INFO - app.py:273 - Extracted 0 events for 21/07/2025-27/07/2025
+2025-04-19 01:14:32,076 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:32] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:33,094 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:33,094 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 28/07/2025 đến ngày 03/08/2025', html=Yes
+2025-04-19 01:14:33,094 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:33,097 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:33,098 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:33,098 - INFO - app.py:85 - Parsed week: 28/07/2025 - 03/08/2025
+2025-04-19 01:14:33,098 - INFO - app.py:273 - Extracted 0 events for 28/07/2025-03/08/2025
+2025-04-19 01:14:33,099 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:33] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:34,114 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:34,114 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 04/08/2025 đến ngày 10/08/2025', html=Yes
+2025-04-19 01:14:34,114 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:34,116 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:34,116 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:34,117 - INFO - app.py:85 - Parsed week: 04/08/2025 - 10/08/2025
+2025-04-19 01:14:34,117 - INFO - app.py:273 - Extracted 0 events for 04/08/2025-10/08/2025
+2025-04-19 01:14:34,118 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:34] "POST /sync_from_extension HTTP/1.1" 200 -
+2025-04-19 01:14:35,133 - INFO - app.py:243 - Request /sync_from_extension (Batch Optimized, Color by Subject)
+2025-04-19 01:14:35,133 - DEBUG - app.py:253 - Sync Data: user='locnt23405e@st.uel.edu.vn', date='Từ ngày 11/08/2025 đến ngày 17/08/2025', html=Yes
+2025-04-19 01:14:35,133 - INFO - app.py:259 - Processing sync for user: locnt23405e@st.uel.edu.vn
+2025-04-19 01:14:35,135 - INFO - app.py:66 - Service built from token OK.
+2025-04-19 01:14:35,135 - INFO - app.py:74 - Starting schedule extraction (Flexible Parsing).
+2025-04-19 01:14:35,136 - INFO - app.py:85 - Parsed week: 11/08/2025 - 17/08/2025
+2025-04-19 01:14:35,136 - INFO - app.py:273 - Extracted 0 events for 11/08/2025-17/08/2025
+2025-04-19 01:14:35,137 - INFO - _internal.py:97 - 127.0.0.1 - - [19/Apr/2025 01:14:35] "POST /sync_from_extension HTTP/1.1" 200 -
