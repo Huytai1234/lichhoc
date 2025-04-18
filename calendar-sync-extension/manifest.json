@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "UEL Schedule Extractor",
+    "version": "1.0",
+    "description": "Extract schedule from UEL MyUEL and sync to Google Calendar",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "128": "icon.png"
+    }
+}
