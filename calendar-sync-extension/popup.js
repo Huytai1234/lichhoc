@@ -99,4 +99,4 @@ syncSemesterButton.addEventListener('click', () => {
     );
 });
 
-// --- Listener của nút logout đã bị xóa ---
+// --- Listener của nút logout đã bị xóa —

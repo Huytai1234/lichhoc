@@ -1,4 +1,4 @@
-const FLASK_BACKEND_URL = 'https://lichhoc.onrender.com';
+const FLASK_BACKEND_URL = 'http://localhost:5001';
 // !!! QUAN TRỌNG: Đảm bảo pattern này khớp chính xác với phần đầu URL trang TKB MyUEL !!!
 const MYUEL_TKB_URL_PATTERN = 'https://myuel.uel.edu.vn/Default.aspx?PageId='; // <<< KIỂM TRA LẠI GIÁ TRỊ NÀY
 // --- ID CỦA CÁC PHẦN TỬ HTML TRÊN TRANG MYUEL (Cần kiểm tra lại) ---
@@ -484,7 +484,7 @@ async function handleSemesterSync(userId, sendResponse) {
     let finalStatus = { status: "error", message: "Lỗi khởi tạo đồng bộ học kỳ." };
     // Đếm số tuần trống liên tiếp để dừng sớm
     let consecutiveEmptyWeeks = 0;
-    const CONSECUTIVE_EMPTY_WEEKS_LIMIT = 4; // Dừng nếu gặp 8 tuần trống liên tiếp
+    const CONSECUTIVE_EMPTY_WEEKS_LIMIT = 8; // Dừng nếu gặp 8 tuần trống liên tiếp
     // Thời gian chờ (có thể cần điều chỉnh tùy thuộc tốc độ mạng và server MyUEL)
     const INTER_WEEK_DELAY_MS = 700; // Chờ giữa các lần xử lý tuần (tăng nhẹ)
     const PRESELECT_WAIT_MS = 4500; // Chờ sau khi chọn trước tuần 2 (tăng nhẹ)
