@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Procfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/background.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar_sync.log" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +34,9 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="2vuc3LHT5kXaFcMODYylvuMt3vp" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -94,7 +98,7 @@
       <option name="presentableId" value="Default" />
       <updated>1744998198778</updated>
       <workItem from="1744998199805" duration="2038000" />
-      <workItem from="1745000263547" duration="92000" />
+      <workItem from="1745000263547" duration="1890000" />
     </task>
     <servers />
   </component>
