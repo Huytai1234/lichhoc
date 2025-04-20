@@ -13,7 +13,7 @@ const CALENDAR_API_BASE = `${GOOGLE_API_BASE}/calendar/v3`;
 const VIETNAM_TIMEZONE_OFFSET = "+07:00";
 const VIETNAM_TIMEZONE_IANA = "Asia/Ho_Chi_Minh";
 const OFFSCRREN_DOCUMENT_PATH = 'offscreen.html';
-const INTER_WEEK_DELAY_MS = 250; // <<< CHỈ TỐI ƯU DELAY NÀY <<<
+const INTER_WEEK_DELAY_MS = 1500; // <<< CHỈ TỐI ƯU DELAY NÀY <<<
 const CONSECUTIVE_EMPTY_WEEKS_LIMIT = 4;
 
 // Logger setup
