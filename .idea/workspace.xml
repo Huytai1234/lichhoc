@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/manifest.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/background.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/popup.html" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/popup.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +101,7 @@
       <updated>1744998198778</updated>
       <workItem from="1744998199805" duration="2038000" />
       <workItem from="1745000263547" duration="22178000" />
-      <workItem from="1745116520712" duration="1178000" />
+      <workItem from="1745116520712" duration="7598000" />
     </task>
     <servers />
   </component>

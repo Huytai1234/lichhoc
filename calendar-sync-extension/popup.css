@@ -1,0 +1,163 @@
+/* popup.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 320px; /* Tăng nhẹ chiều rộng */
+    padding: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9; /* Nền sáng nhẹ */
+}
+
+h1 {
+    font-size: 18px;
+    color: #2c3e50; /* Màu tiêu đề đậm */
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+}
+
+/* Phần hướng dẫn */
+#instructions {
+    background-color: #eaf2f8; /* Nền xanh nhạt */
+    border: 1px solid #a9cce3;
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    font-size: 0.9em; /* Chữ nhỏ hơn chút */
+    color: #2874a6; /* Màu chữ xanh dương */
+}
+
+#instructions h2 {
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #1f618d;
+}
+
+#instructions ul {
+    margin: 0;
+    padding-left: 18px; /* Thụt lề danh sách */
+}
+
+#instructions li {
+    margin-bottom: 4px;
+}
+
+/* Form */
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600; /* Đậm hơn chút */
+    color: #555;
+}
+
+input[type="email"] {
+    width: calc(100% - 18px); /* Điều chỉnh padding */
+    margin-bottom: 14px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.07); /* Thêm bóng đổ nhẹ */
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease; /* Hiệu ứng chuyển màu */
+    border: 1px solid transparent; /* Bỏ border mặc định */
+}
+
+/* Nút Đồng bộ Tuần */
+#syncWeekButton {
+    background-color: #3498db; /* Xanh dương */
+    color: white;
+    border-color: #2980b9;
+}
+
+#syncWeekButton:hover {
+    background-color: #2980b9;
+}
+
+/* Nút Đồng bộ Học kỳ */
+#syncSemesterButton {
+    background-color: #2ecc71; /* Xanh lá */
+    color: white;
+    border-color: #27ae60;
+}
+
+#syncSemesterButton:hover {
+    background-color: #27ae60;
+}
+
+/* Trạng thái Disabled */
+button:disabled {
+    background-color: #bdc3c7;
+    border-color: #a5acaf;
+    color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+/* Chỉ báo tải (Spinner) */
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin: 15px auto 5px auto; /* Canh giữa, cách trên dưới */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ẩn loader mặc định */
+.hidden {
+    display: none;
+}
+
+
+/* Khu vực trạng thái */
+#status {
+    margin-top: 15px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 0.95em;
+    word-wrap: break-word;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+/* Các lớp trạng thái */
+.status-info {
+    color: #2980b9;
+    background-color: #eaf2f8;
+    border-color: #a9cce3;
+}
+.status-success {
+    color: #27ae60;
+    background-color: #eafaf1;
+    border-color: #a3e9a4;
+}
+.status-error {
+    color: #c0392b;
+    background-color: #fdecea;
+    border-color: #f1a9a0;
+}
+.status-warn { /* Thêm lớp cảnh báo nếu cần */
+    color: #f39c12;
+    background-color: #fef9e7;
+    border-color: #f8c471;
+}
