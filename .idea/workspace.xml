@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/popup.css" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/calendar-sync-extension/popup.html" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -98,7 +100,7 @@
       <workItem from="1744998199805" duration="2038000" />
       <workItem from="1745000263547" duration="22178000" />
       <workItem from="1745116520712" duration="7637000" />
-      <workItem from="1745125790902" duration="1229000" />
+      <workItem from="1745125790902" duration="1514000" />
     </task>
     <servers />
   </component>

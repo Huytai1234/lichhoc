@@ -20,30 +20,36 @@ h1 {
 
 /* Phần hướng dẫn */
 #instructions {
-    background-color: #eaf2f8; /* Nền xanh nhạt */
-    border: 1px solid #a9cce3;
-    border-radius: 5px;
-    padding: 10px 12px;
-    margin-bottom: 15px;
-    font-size: 0.9em; /* Chữ nhỏ hơn chút */
-    color: #2874a6; /* Màu chữ xanh dương */
+    background-color: #f0f4f8; /* Màu nền hơi nhạt hơn */
+    border: 1px solid #d6eaf8;
+    border-radius: 4px; /* Bo góc nhẹ */
+    padding: 8px 10px;   /* Giảm padding */
+    margin-bottom: 12px; /* Giảm margin dưới */
+    font-size: 0.85em;  /* Giảm font chữ tổng thể */
+    color: #5d6d7e;    /* Màu chữ hơi xám */
+    line-height: 1.5; /* Giảm nhẹ line height nếu cần */
 }
 
 #instructions h2 {
-    font-size: 1.1em;
+    font-size: 1.0em;  /* Giảm font chữ tiêu đề */
     margin-top: 0;
-    margin-bottom: 8px;
-    color: #1f618d;
+    margin-bottom: 5px; /* Giảm margin dưới tiêu đề */
+    color: #2874a6;
+    text-align: center; /* Có thể canh giữa nếu muốn */
+    border-bottom: none; /* Bỏ gạch chân */
+    padding-bottom: 0;
 }
 
 #instructions ul {
     margin: 0;
-    padding-left: 18px; /* Thụt lề danh sách */
+    padding-left: 15px; /* Giảm thụt lề */
+    list-style-type: disc; /* Hoặc 'circle', 'square' nếu muốn thay đổi dấu đầu dòng */
 }
 
 #instructions li {
-    margin-bottom: 4px;
+    margin-bottom: 2px; /* Giảm khoảng cách giữa các dòng */
 }
+
 
 /* Form */
 label {
