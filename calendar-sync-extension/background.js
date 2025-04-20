@@ -1,29 +1,22 @@
-const FLASK_BACKEND_URL = 'http://localhost:5001';
-// !!! QUAN TRỌNG: Đảm bảo pattern này khớp chính xác với phần đầu URL trang TKB MyUEL !!!
-const MYUEL_TKB_URL_PATTERN = 'https://myuel.uel.edu.vn/Default.aspx?PageId='; // <<< KIỂM TRA LẠI GIÁ TRỊ NÀY
-// --- ID CỦA CÁC PHẦN TỬ HTML TRÊN TRANG MYUEL (Cần kiểm tra lại) ---
-const WEEK_DROPDOWN_ID = "portlet_3750a397-90f5-4478-b67c-a8f0a1a4060b_ctl00_ddlTuan"; // <<< ID ĐÚNG LÀ ddlTuan
-// --- Định nghĩa các chuỗi ID để truyền đi ---
+// background.js - V4.2.1 - Restore Working Base + Reduced Delay ONLY
+
+// Constants
+const MYUEL_TKB_URL_PATTERN = 'https://myuel.uel.edu.vn/Default.aspx?PageId=';
+const WEEK_DROPDOWN_ID = "portlet_3750a397-90f5-4478-b67c-a8f0a1a4060b_ctl00_ddlTuan";
 const TIMETABLE_TABLE_ID_STRING = "portlet_3750a397-90f5-4478-b67c-a8f0a1a4060b_ctl00_tblThoiKhoaBieu";
 const DATE_SPAN_ID_STRING = "portlet_3750a397-90f5-4478-b67c-a8f0a1a4060b_ctl00_lblDate";
-// -----------------------------------------------------------
-let GOOGLE_CLIENT_ID = ''; // Sẽ được đọc từ manifest
-let GOOGLE_SCOPES = '';    // Sẽ được đọc từ manifest
+let GOOGLE_CLIENT_ID = '';
+let GOOGLE_SCOPES = '';
+const AVAILABLE_EVENT_COLORS = ["1", "2", "3", "4", "5", "6", "7", "9", "10", "11"];
+const GOOGLE_API_BASE = 'https://www.googleapis.com';
+const CALENDAR_API_BASE = `${GOOGLE_API_BASE}/calendar/v3`;
+const VIETNAM_TIMEZONE_OFFSET = "+07:00";
+const VIETNAM_TIMEZONE_IANA = "Asia/Ho_Chi_Minh";
+const OFFSCRREN_DOCUMENT_PATH = 'offscreen.html';
+const INTER_WEEK_DELAY_MS = 250; // <<< CHỈ TỐI ƯU DELAY NÀY <<<
+const CONSECUTIVE_EMPTY_WEEKS_LIMIT = 4;
 
-try {
-    const manifest = chrome.runtime.getManifest();
-    // Đọc Client ID và Scopes từ manifest (đã được cập nhật với Client ID mới loại "Web application")
-    GOOGLE_CLIENT_ID = manifest?.oauth2?.client_id;
-    GOOGLE_SCOPES = manifest?.oauth2?.scopes?.join(' ');
-    if (!GOOGLE_CLIENT_ID || !GOOGLE_SCOPES || GOOGLE_CLIENT_ID.includes("YOUR_")) {
-        throw new Error("Client ID/Scopes chưa cấu hình đúng trong manifest.json (Hãy dùng Client ID loại Web mới)");
-    }
-    console.info("[BACKGROUND INIT] Loaded Client ID:", GOOGLE_CLIENT_ID); // Log Client ID được load
-} catch (e) {
-    console.error("BG ERROR: Init manifest failed.", e);
-}
-// ---------------
-
+// Logger setup
 const logger = {
     info: (...args) => console.log("[BACKGROUND INFO]", new Date().toISOString(), ...args),
     warn: (...args) => console.warn("[BACKGROUND WARN]", new Date().toISOString(), ...args),
@@ -31,742 +24,199 @@ const logger = {
     debug: (...args) => console.debug("[BACKGROUND DEBUG]", new Date().toISOString(), ...args)
 };
 
-// --- Hàm Hiển Thị Thông Báo Hệ Thống ---
-function showNotification(title, message, type = 'basic', idSuffix = Date.now().toString()) {
-     const notificationId = `uel-sync-notif-${idSuffix}`;
-     let iconUrl = 'icon.png'; // Đảm bảo file icon.png tồn tại ở thư mục gốc
-     logger.debug(`BG: Showing notification: Id=${notificationId}, Title='${title}', Msg='${message}'`);
-     chrome.notifications.create(notificationId, { type: 'basic', iconUrl: iconUrl, title: title, message: message, priority: 1 }, (id) => { if (chrome.runtime.lastError) logger.error("BG: Notif Create Error:", chrome.runtime.lastError?.message); else logger.debug("BG: Notification created ID:", id); });
+// Load Manifest Config
+try {
+    logger.debug("BG INIT: Reading manifest...");
+    const manifest = chrome.runtime.getManifest();
+    logger.debug("BG INIT: Manifest read.");
+    GOOGLE_CLIENT_ID = manifest?.oauth2?.client_id;
+    GOOGLE_SCOPES = manifest?.oauth2?.scopes?.join(' ');
+    logger.debug("BG INIT: ClientID from manifest:", GOOGLE_CLIENT_ID);
+    logger.debug("BG INIT: Scopes from manifest:", GOOGLE_SCOPES);
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_SCOPES || GOOGLE_CLIENT_ID.includes("YOUR_")) {
+        logger.error("BG INIT: Invalid/Missing Client ID or Scopes in manifest.");
+        throw new Error("Client ID/Scopes chưa cấu hình đúng trong manifest.json");
+    }
+    logger.info("[BACKGROUND INIT] Loaded Client ID:", GOOGLE_CLIENT_ID);
+} catch (e) {
+    logger.error("BG ERROR: Init manifest reading failed.", e);
 }
 
-// --- Hàm Lấy Google Access Token qua launchWebAuthFlow (ĐÃ SỬA ĐỔI REDIRECT URI) ---
-function forceGoogleLoginAndGetToken(userIdHint) {
-    logger.info("BG: --- ENTERING forceGoogleLoginAndGetToken (Using Specific Redirect URI) ---");
-    logger.debug("BG: >> userIdHint:", userIdHint);
-    return new Promise((resolve, reject) => {
-        logger.debug("BG: >> Inside forceGoogleLoginAndGetToken Promise.");
-        logger.debug(`BG: >> Using GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}`); // Client ID này đã được cập nhật từ manifest
-        logger.debug(`BG: >> Using GOOGLE_SCOPES: ${GOOGLE_SCOPES}`);
+// --- Offscreen Document Helpers ---
+let creatingOffscreenDocument = null;
+async function hasOffscreenDocument() { try { const contexts = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'], documentUrls: [chrome.runtime.getURL(OFFSCRREN_DOCUMENT_PATH)] }); return !!contexts?.length; } catch (err) { logger.error("BG Offscreen: Error checking contexts:", err); return false; } }
+async function setupOffscreenDocument() { if (await hasOffscreenDocument()) { logger.debug("BG Offscreen: Doc exists."); return; } if (creatingOffscreenDocument) { logger.debug("BG Offscreen: Waiting create promise..."); try { await creatingOffscreenDocument; } catch(err){} return; } logger.info("BG Offscreen: Creating document..."); creatingOffscreenDocument = chrome.offscreen.createDocument({ url: OFFSCRREN_DOCUMENT_PATH, reasons: [chrome.offscreen.Reason.DOM_PARSER], justification: 'Parse timetable HTML' }); try { await creatingOffscreenDocument; logger.info("BG Offscreen: Doc created."); } catch (error) { logger.error("BG Offscreen: Create failed:", error); } finally { creatingOffscreenDocument = null; } }
+ async function closeOffscreenDocument() { if (!(await hasOffscreenDocument())) { logger.debug("BG Offscreen: No doc to close."); return; } try { logger.info("BG Offscreen: Closing document..."); await chrome.offscreen.closeDocument(); logger.info("BG Offscreen: Close attempt finished."); } catch (err) { logger.error("BG Offscreen: Error closing doc:", err); } }
+ async function parseHtmlViaOffscreen(timetableHtml, dateRangeText) { const offscreenParseId = `offParse-${Date.now()}`; logger.debug(`BG Offscreen [${offscreenParseId}]: Requesting parse...`); await setupOffscreenDocument(); const TIMEOUT_MS = 15000; let response = null; let timeoutId = null; try { response = await Promise.race([ chrome.runtime.sendMessage({ type: 'parse-html-offscreen', target: 'offscreen', data: { timetableHtml, dateRangeText } }), new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error(`Timeout (${TIMEOUT_MS}ms)`)), TIMEOUT_MS); }) ]); clearTimeout(timeoutId); logger.debug(`BG Offscreen [${offscreenParseId}]: Received response:`, response); if (response?.error) throw new Error(`Offscreen Parser Error: ${response.error}`); if (!response?.scheduleList || !response.weekStartDate || !response.weekEndDate) throw new Error("Invalid response structure from Offscreen Parser."); return response; } catch (error) { clearTimeout(timeoutId); logger.error(`BG Offscreen [${offscreenParseId}]: Error during parseHtmlViaOffscreen:`, error); throw new Error(`Offscreen Comm/Parse Error: ${error.message}`); } }
 
-        // Kiểm tra Client ID và Scopes vẫn quan trọng
-        if (!GOOGLE_CLIENT_ID || !GOOGLE_SCOPES || GOOGLE_CLIENT_ID.includes("YOUR_")) {
-            const errorMsg = "Chưa cấu hình đúng Client ID (Web application) hoặc Scopes trong manifest.";
-            logger.error("BG: >> Validation failed:", errorMsg);
-            showNotification("Lỗi Cấu Hình", errorMsg, 'error', 'cfg_err_token');
-            return reject(new Error(errorMsg));
-        }
+// --- Notification Function ---
+function showNotification(title, message, type = 'basic', idSuffix = Date.now().toString()) { const notificationId = `uel-sync-notif-${idSuffix}`; let iconUrl = 'icon.png'; logger.debug(`BG Notif [${idSuffix}]: Showing: Title='${title}', Msg='${message.substring(0, 100)}...'`); chrome.notifications.create(notificationId, { type: 'basic', iconUrl: iconUrl, title: title, message: message, priority: 1 }, (createdId) => { if (chrome.runtime.lastError) logger.error(`BG Notif [${idSuffix}]: Create Error:`, chrome.runtime.lastError?.message); }); }
 
+// --- Google Auth Function (forceGoogleLoginAndGetToken - V3) ---
+function forceGoogleLoginAndGetToken(userIdHint) { /* ... (Giữ nguyên phiên bản V3 đã hoạt động tốt) ... */ const authUniqueId = `auth-${Date.now()}`; logger.info(`BG AUTH [${authUniqueId}]: --- ENTERING forceGoogleLoginAndGetToken V3 ---`); logger.debug(`BG AUTH [${authUniqueId}]: Hint: ${userIdHint}`); return new Promise((resolve, reject) => { logger.debug(`BG AUTH [${authUniqueId}]: Inside Promise V3.`); if (!GOOGLE_CLIENT_ID || !GOOGLE_SCOPES || GOOGLE_CLIENT_ID.includes("YOUR_")) { const errorMsg = "BG AUTH FATAL V3: Client ID/Scopes invalid/missing."; logger.error(`BG AUTH [${authUniqueId}]: ${errorMsg}`); showNotification("Lỗi Cấu Hình Auth", errorMsg, 'error', `cfg_fatal_${authUniqueId}`); return reject(new Error(errorMsg)); } logger.debug(`BG AUTH [${authUniqueId}]: Config check OK.`); let finalAuthUrl; try { logger.debug(`BG AUTH [${authUniqueId}]: Getting extension ID...`); const extensionId = chrome.runtime.id; if (!extensionId) throw new Error("Cannot get Extension ID."); logger.debug(`BG AUTH [${authUniqueId}]: Ext ID: ${extensionId}`); const specificRedirectUri = `https://${extensionId}.chromiumapp.org/google`; logger.info(`BG AUTH [${authUniqueId}]: Redirect URI: ${specificRedirectUri}`); const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth'); authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID); authUrl.searchParams.set('response_type', 'token'); authUrl.searchParams.set('redirect_uri', specificRedirectUri); authUrl.searchParams.set('scope', GOOGLE_SCOPES); authUrl.searchParams.set('prompt', 'consent select_account'); if (userIdHint) authUrl.searchParams.set('login_hint', userIdHint); finalAuthUrl = authUrl.toString(); logger.info(`BG AUTH [${authUniqueId}]: Auth URL Built (start): ${finalAuthUrl.substring(0, 200)}...`); } catch (setupError) { logger.error(`BG AUTH [${authUniqueId}]: Sync setup error:`, setupError); return reject(new Error(`Setup Auth URL Error: ${setupError.message}`)); } logger.debug(`BG AUTH [${authUniqueId}]: PREP CALL launchWebAuthFlow...`); try { logger.debug(`BG AUTH [${authUniqueId}]: CALLING launchWebAuthFlow NOW...`); chrome.identity.launchWebAuthFlow({ url: finalAuthUrl, interactive: true }, (redirectUrl) => { logger.info(`BG AUTH [${authUniqueId}]: --- launchWebAuthFlow CALLBACK START ---`); const lastError = chrome.runtime.lastError; logger.debug(`BG AUTH [${authUniqueId}]: Callback - lastError:`, lastError); logger.debug(`BG AUTH [${authUniqueId}]: Callback - redirectUrl:`, redirectUrl); if (lastError || !redirectUrl) { const errorMsg = lastError?.message || "Auth failed/cancelled (No URL)."; logger.error(`BG AUTH [${authUniqueId}]: Callback - FAILED/Cancelled. Msg: ${errorMsg}`); return reject(new Error(errorMsg)); } logger.info(`BG AUTH [${authUniqueId}]: Callback - Auth OK, processing URL...`); try { const fragmentIndex = redirectUrl.indexOf('#'); if (fragmentIndex === -1) { logger.error(`BG AUTH [${authUniqueId}]: Callback - No fragment!`); return reject(new Error("Callback - No fragment (#) in URL.")); } const params = new URLSearchParams(redirectUrl.substring(fragmentIndex + 1)); const accessToken = params.get('access_token'); const errorParam = params.get('error'); logger.debug(`BG AUTH [${authUniqueId}]: Callback - Parsed params:`, Object.fromEntries(params)); if (errorParam) { logger.error(`BG AUTH [${authUniqueId}]: Callback - Google error param: ${errorParam}`); return reject(new Error(`Callback - Google Error: ${errorParam}`)); } if (!accessToken) { logger.error(`BG AUTH [${authUniqueId}]: Callback - No access_token found!`); return reject(new Error("Callback - No access_token in fragment.")); } logger.info(`BG AUTH [${authUniqueId}]: Callback - Access Token OK! Resolving promise.`); resolve(accessToken); } catch (parseError) { logger.error(`BG AUTH [${authUniqueId}]: Callback - Parse fragment error:`, parseError); return reject(new Error("Callback - Error processing fragment.")); } finally { logger.info(`BG AUTH [${authUniqueId}]: CALLBACK END`); } }); logger.debug(`BG AUTH [${authUniqueId}]: Called launchWebAuthFlow, WAITING...`); } catch (launchError) { logger.error(`BG AUTH [${authUniqueId}]: Sync error calling launchWebAuthFlow API:`, launchError); return reject(new Error(`Error calling launchWebAuthFlow: ${launchError.message}`)); } }); }
+
+// --- Delay Function ---
+function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// --- Script Injection Function ---
+async function executeScriptOnTab(tabId, targetScript, args = []) { let scriptTarget; if (typeof targetScript === 'function') { scriptTarget = { func: targetScript, args: args }; } else if (typeof targetScript === 'string' && targetScript.endsWith('.js')) { scriptTarget = { files: [targetScript] }; } else if (typeof targetScript === 'string') { if (targetScript === 'getContent_getWeekOptions') scriptTarget = { func: getContent_getWeekOptions, args: args }; else if (targetScript === 'getContent_selectWeekAndGetData') scriptTarget = { func: getContent_selectWeekAndGetData, args: args }; else { logger.warn(`BG Scripting: Assuming string '${targetScript}' is file.`); scriptTarget = { files: [targetScript] }; } } else { throw new Error(`Invalid target script type: ${typeof targetScript}`); } const injection = { target: { tabId: tabId }, world: "MAIN", ...scriptTarget }; logger.debug(`BG Scripting: Executing on tab ${tabId}`, injection); try { const results = await chrome.scripting.executeScript(injection); logger.debug(`BG Scripting: Raw result tab ${tabId}:`, results); if (!results || results.length === 0) { logger.warn(`BG Scripting: No result frame tab ${tabId}.`); return null; } if (results[0].error) { logger.error(`BG Scripting: Frame script error:`, results[0].error); throw new Error(`Frame script error: ${results[0].error.message || results[0].error}`); } logger.debug(`BG Scripting: Script result frame 0:`, results[0].result); return results[0].result; } catch (err) { logger.error(`BG Scripting: Inject/Exec error tab ${tabId}:`, err); let errMsg = err.message || "Unknown script inject error"; /*...*/ throw new Error(`Script injection/execution failed: ${errMsg}`); } }
+
+// --- Functions to be Injected ---
+function getContent_getWeekOptions(dropdownId) { /* ... (Giữ nguyên) ... */ console.log('[CS getContent_getWeekOptions] Running...');const weekDropdown=document.getElementById(dropdownId);if(!weekDropdown){console.error(`[CS] Dropdown ID '${dropdownId}' not found!`);return {error:`Dropdown ID '${dropdownId}' không thấy!`};} const options=[];for (let i=0; i < weekDropdown.options.length; i++){const option=weekDropdown.options[i];if(option.value&&option.value!=="-1"&&option.value!==""&&option.value!=="0") options.push({value:option.value, text:option.text});} console.log(`[CS] Found ${options.length} weeks.`); return options; }
+async function getContent_selectWeekAndGetData(dropdownId, weekValue, tableId, dateId) { /* ... (Giữ nguyên) ... */ console.log(`[CS getContent_selectWeekAndGetData] Selecting: ${weekValue}`);const weekDropdown=document.getElementById(dropdownId);const initialTable=document.getElementById(tableId);const initialDateSpan=document.getElementById(dateId);if(!weekDropdown||!initialTable||!initialDateSpan){let missing=[];if(!weekDropdown)missing.push(dropdownId);if(!initialTable)missing.push(tableId);if(!initialDateSpan)missing.push(dateId);console.error("[CS] Missing initial:", missing);return {error:`Thiếu phần tử: ${missing.join(', ')}`};} const oldDateText=initialDateSpan.innerText.trim();weekDropdown.value=weekValue;console.log("[CS] Dispatching 'change'...");weekDropdown.dispatchEvent(new Event('change',{bubbles:true}));const checkInterval=300;const timeoutMs=8000;const endTime=Date.now()+timeoutMs;let dateChanged=false;let waitedTime=0;console.log(`[CS Wait] Waiting date from "${oldDateText}"`);while(Date.now()<endTime){await new Promise(r => setTimeout(r,checkInterval));waitedTime+=checkInterval;const currentDateSpan=document.getElementById(dateId);if(!currentDateSpan){console.warn("[CS Wait] Date span gone.");continue;} const newDateText=currentDateSpan.innerText.trim();if(newDateText&&newDateText!==oldDateText){console.log(`[CS Wait] Date changed after ${waitedTime}ms.`);dateChanged=true;break;}} if(!dateChanged)console.warn(`[CS Wait] Timeout.`);await new Promise(r => setTimeout(r,300));const finalTable=document.getElementById(tableId);const finalDateSpan=document.getElementById(dateId);if(!finalTable||!finalDateSpan){console.error("[CS] Final elements lost.");return {error:"Phần tử TKB/ngày mất sau chờ."};} const timetableHtml=finalTable.outerHTML;const dateRangeText=finalDateSpan.innerText.trim();if(!timetableHtml||!dateRangeText){console.error("[CS] Final extract fail.");return {error:"Không lấy được HTML/ngày cuối."};} console.log(`[CS] Extracted OK. Date: ${dateRangeText}`);return {timetableHtml, dateRangeText}; }
+
+// --- Helper parse LocalDate ---
+function parseLocalDate(dateString) { const parts = dateString.split('/'); if (parts.length !== 3) return null; const day = parseInt(parts[0], 10); const month = parseInt(parts[1], 10) - 1; const year = parseInt(parts[2], 10); if (isNaN(day) || isNaN(month) || isNaN(year) || month < 0 || month > 11 || day < 1 || day > 31) return null; const date = new Date(year, month, day); if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) return null; return date; }
+
+// --- Google Calendar API Helpers ---
+async function fetchGoogleApi(url, method, accessToken, body = null) { const fetchId = `gapi-${Date.now()}`; logger.debug(`GAPI [${fetchId}]> ${method} ${url.substring(0,100)}...`); if (!accessToken) { logger.error(`GAPI [${fetchId}] ERROR: No accessToken.`); throw new Error("Thiếu access token GAPI."); } const options = { method: method, headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }; if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) { options.body = JSON.stringify(body); logger.debug(`GAPI [${fetchId}] Body size: ${options.body.length}`); } try { const response = await fetch(url, options); logger.debug(`GAPI [${fetchId}]< Status ${response.status}`); if (!response.ok) { let errorData = null; let errorText = ''; try { errorData = await response.json(); logger.error(`GAPI [${fetchId}] Err Body:`, errorData); } catch (e) { try { errorText = await response.text(); } catch (e2) {} logger.error(`GAPI [${fetchId}] Err Status: ${response.status}. Non-JSON: ${errorText}`); } const errorMsg = errorData?.error?.message || `HTTP ${response.status} - ${errorText || response.statusText}`; const apiError = new Error(errorMsg); apiError.status = response.status; apiError.data = errorData; throw apiError; } if (response.status === 204) { logger.debug(`GAPI [${fetchId}] 204 No Content.`); return {}; } const data = await response.json(); return data; } catch (error) { logger.error(`GAPI [${fetchId}] FETCH ERROR for ${method}:`, error); if (!(error instanceof Error)) { throw new Error(`Unknown GAPI fetch err: ${JSON.stringify(error)}`); } throw error; } }
+async function fetchExistingCalendarEvents(startDateStr, endDateStr, accessToken) { /* ... (Giữ nguyên phiên bản V4.2 với logging chi tiết) ... */ const fetchExistingId = `fetchExist-${Date.now()}`; logger.info(`GAPI Events [${fetchExistingId}]: --- ENTERING fetchExisting... ---`); logger.debug(`GAPI Events [${fetchExistingId}]: Inputs - Start='${startDateStr}', End='${endDateStr}', Token?=${!!accessToken}`); const existingEventsSet = new Set(); try { logger.debug(`GAPI Events [${fetchExistingId}]: Parsing dates...`); const startDtObj = parseLocalDate(startDateStr); const endDtObj = parseLocalDate(endDateStr); if (!startDtObj || !endDtObj) { logger.error(`GAPI Events [${fetchExistingId}]: Invalid dates!`); throw new Error(`Invalid dates: ${startDateStr} - ${endDateStr}`); } logger.debug(`GAPI Events [${fetchExistingId}]: Dates OK.`); startDtObj.setHours(0,0,0,0); endDtObj.setHours(23,59,59,999); const timeMin = new Date(Date.UTC(startDtObj.getFullYear(),startDtObj.getMonth(),startDtObj.getDate(),0,0,0)).toISOString(); const timeMax = new Date(Date.UTC(endDtObj.getFullYear(),endDtObj.getMonth(),endDtObj.getDate(),23,59,59,999)).toISOString(); logger.debug(`GAPI Events [${fetchExistingId}]: Query UTC ISO: ${timeMin} to ${timeMax}`); const eventsListUrl = new URL(`${CALENDAR_API_BASE}/calendars/primary/events`); eventsListUrl.searchParams.set('timeMin', timeMin); eventsListUrl.searchParams.set('timeMax', timeMax); eventsListUrl.searchParams.set('singleEvents', 'true'); eventsListUrl.searchParams.set('maxResults', '250'); eventsListUrl.searchParams.set('orderBy', 'startTime'); logger.debug(`GAPI Events [${fetchExistingId}]: Query URL base: ${eventsListUrl.toString()}`); let nextPageToken = null; let totalEventsFetched = 0; let pageNum = 1; do { logger.debug(`GAPI Events [${fetchExistingId}]: Fetching page ${pageNum} (Token: ${nextPageToken||'None'})...`); const currentUrl = new URL(eventsListUrl.toString()); if (nextPageToken) { currentUrl.searchParams.set('pageToken', nextPageToken); } logger.debug(`GAPI Events [${fetchExistingId}]: Awaiting fetchGAPI pg ${pageNum}...`); const responseData = await fetchGoogleApi(currentUrl.toString(), 'GET', accessToken); logger.debug(`GAPI Events [${fetchExistingId}]: fetchGAPI returned pg ${pageNum}. Resp?=${!!responseData}`); const items = responseData?.items || []; totalEventsFetched += items.length; logger.debug(`GAPI Events [${fetchExistingId}]: Page ${pageNum} got ${items.length}. Total: ${totalEventsFetched}`); for (const item of items) { const summary=item.summary||""; const startISO=item.start?.dateTime; const endISO=item.end?.dateTime; const location=(item.location||"").trim(); if (summary&&startISO&&endISO) { const eventKey=`${summary}|${startISO}|${endISO}|${location}`; existingEventsSet.add(eventKey); } } nextPageToken = responseData?.nextPageToken; logger.debug(`GAPI Events [${fetchExistingId}]: Next token pg ${pageNum}: ${nextPageToken||'None'}`); pageNum++; } while (nextPageToken); logger.info(`GAPI Events [${fetchExistingId}]: Fetch finished. Set size: ${existingEventsSet.size}. Items processed: ${totalEventsFetched}`); return existingEventsSet; } catch (error) { logger.error(`GAPI Events [${fetchExistingId}]: ERROR fetchExisting:`, error); throw new Error(`Lỗi lấy sự kiện GCal: ${error.message}`); } finally { logger.info(`GAPI Events [${fetchExistingId}]: --- EXITING fetchExisting... (Set size: ${existingEventsSet?.size}) ---`); } }
+
+// --- addEventsToCalendar (PHIÊN BẢN V4.2 - TUẦN TỰ, KHÔNG DÙNG Promise.all) ---
+async function addEventsToCalendar(eventsToAdd, accessToken) {
+    const addEventsId = `addEventsSEQ-${Date.now()}`; // Đổi ID để nhận biết là tuần tự
+    logger.info(`GAPI Events [${addEventsId}]: Adding ${eventsToAdd.length} events sequentially...`);
+    let addedCount = 0; let errorCount = 0; const subjectColorMap = {}; let nextColorIndex = 0; const numColors = AVAILABLE_EVENT_COLORS.length;
+    const insertUrl = `${CALENDAR_API_BASE}/calendars/primary/events`;
+
+    // *** Vòng lặp tuần tự ***
+    for (const eventData of eventsToAdd) {
         try {
-            // <<< --- BẮT ĐẦU SỬA ĐỔI --- >>>
-            // Xây dựng Redirect URI cụ thể theo phương pháp bạn yêu cầu
-            // KHÔNG dùng chrome.identity.getRedirectURL() nữa
-            const extensionId = chrome.runtime.id; // Lấy ID của extension hiện tại đang chạy
-            if (!extensionId) {
-                // Thêm kiểm tra lỗi nếu không lấy được ID
-                logger.error("BG: >> Could not get extension ID.");
-                return reject(new Error("Không thể lấy được ID của extension."));
-            }
-            // Tạo URI chính xác như đã cấu hình trên Google Cloud Console cho Client ID "Web application"
-            // Bao gồm cả phần path "/google"
-            const specificRedirectUri = `https://${extensionId}.chromiumapp.org/google`;
-            logger.info("BG: >> Constructing specific Redirect URI:", specificRedirectUri);
-            // <<< --- KẾT THÚC SỬA ĐỔI --- >>>
-
-            // Xây dựng URL xác thực của Google
-            const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-            authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID); // Sử dụng Client ID mới đã đọc từ manifest
-            authUrl.searchParams.set('response_type', 'token'); // Yêu cầu trả về token trực tiếp trong fragment
-
-            // <<< --- SỬA ĐỔI DÒNG NÀY --- >>>
-            // Sử dụng URI vừa được xây dựng cụ thể làm redirect_uri
-            authUrl.searchParams.set('redirect_uri', specificRedirectUri);
-            // <<< --- KẾT THÚC SỬA ĐỔI DÒNG NÀY --- >>>
-
-            authUrl.searchParams.set('scope', GOOGLE_SCOPES);
-            authUrl.searchParams.set('prompt', 'consent select_account'); // Luôn yêu cầu chọn tài khoản & chấp thuận
-            if (userIdHint) {
-                authUrl.searchParams.set('login_hint', userIdHint); // Gợi ý email nếu có
-            }
-            const finalAuthUrl = authUrl.toString();
-            logger.info("BG: >> Launching Web Auth Flow with URL:", finalAuthUrl); // Log URL cuối cùng để kiểm tra
-
-            // Gọi launchWebAuthFlow với URL đã xây dựng
-            chrome.identity.launchWebAuthFlow({ url: finalAuthUrl, interactive: true }, (redirectUrl) => {
-                // Callback này sẽ được gọi sau khi Google redirect trở lại
-                logger.debug("BG: >> launchWebAuthFlow callback executed.");
-
-                if (chrome.runtime.lastError || !redirectUrl) {
-                    // Xử lý lỗi nếu người dùng hủy hoặc có lỗi API
-                    logger.error("BG: >> launchWebAuthFlow API Error or Cancelled:", chrome.runtime.lastError);
-                    reject(new Error(chrome.runtime.lastError?.message || "Xác thực Google thất bại/bị hủy bỏ."));
-                } else {
-                    // Log lại URL thực tế nhận được từ Google để đối chiếu
-                    logger.info("BG: >> Auth flow successful, received redirect URL:", redirectUrl);
-
-                    // Kiểm tra (tùy chọn) xem URL nhận được có bắt đầu đúng không
-                    if (!redirectUrl.startsWith(`https:// ${extensionId}.chromiumapp.org/google`)) {
-                         logger.warn(`BG: >> WARNING: Received redirect URL "${redirectUrl}" does not exactly match the configured "${specificRedirectUri}". Checking fragment anyway.`);
-                         // Thường thì Google sẽ trả về đúng URI đã đăng ký, nhưng có thể thêm # hoặc ?
-                     }
-
-                    // Parse URL fragment để lấy token (Logic này vẫn giữ nguyên và đúng)
-                    try {
-                        const params = new URLSearchParams(redirectUrl.substring(redirectUrl.indexOf('#') + 1));
-                        const accessToken = params.get('access_token');
-                        const error = params.get('error');
-                        logger.debug("BG: >> Parsed params from fragment:", Object.fromEntries(params));
-                        if (error) {
-                            logger.error("BG: >> Google returned error in fragment:", error);
-                            reject(new Error(`Lỗi từ Google: ${error}`));
-                        } else if (!accessToken) {
-                            logger.error("BG: >> No access token found in fragment:", redirectUrl);
-                            reject(new Error("Không tìm thấy access token trong URL trả về."));
-                        } else {
-                            // Thành công! Trả về access token
-                            logger.info("BG: >> Access Token extracted OK.");
-                            resolve(accessToken);
-                        }
-                    } catch (parseError) {
-                        logger.error("BG: >> Error parsing redirect URL fragment:", parseError);
-                        reject(new Error("Lỗi xử lý URL trả về từ Google."));
-                    }
-                }
-            });
+            const subjectName = eventData.subject || "Sự kiện KCL";
+            // Color assignment - Use pre-assigned color if available
+            const colorId = eventData.colorId || (() => {
+                let assignedColor = subjectColorMap[subjectName];
+                if (!assignedColor) { assignedColor = AVAILABLE_EVENT_COLORS[nextColorIndex % numColors]; subjectColorMap[subjectName] = assignedColor; nextColorIndex++; }
+                return assignedColor;
+            })();
+             const desc = `GV: ${eventData.teacher || 'N/A'}\nCS: ${eventData.location || 'N/A'}${eventData.periods ? `\nTiết: ${eventData.periods}` : ''}\nPhòng: ${eventData.room || 'N/A'}${eventData.description_extra || ''}`;
+             const eventBody = {
+                 summary: subjectName, location: eventData.room || '', description: desc,
+                 start: { dateTime: eventData.start_datetime_iso, timeZone: VIETNAM_TIMEZONE_IANA },
+                 end: { dateTime: eventData.end_datetime_iso, timeZone: VIETNAM_TIMEZONE_IANA },
+                 colorId: colorId,
+                 reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 15 }] }
+             };
+            logger.debug(`GAPI Events [${addEventsId}]: Inserting: ${eventBody.summary} at ${eventBody.start.dateTime}`);
+            // *** await từng lệnh gọi ***
+            const result = await fetchGoogleApi(insertUrl, 'POST', accessToken, eventBody);
+            logger.info(`GAPI Events [${addEventsId}]: Added OK '${subjectName}'. ID: ${result?.id}`);
+            addedCount++;
         } catch (error) {
-            // Bắt lỗi trong quá trình thiết lập URL hoặc lấy extension ID
-            logger.error("BG: >> Error during setup before launchWebAuthFlow:", error);
-            reject(new Error(`Lỗi thiết lập xác thực extension: ${error.message}`));
+            logger.error(`GAPI Events [${addEventsId}]: Failed to add event '${eventData.subject}':`, error);
+            errorCount++;
+            // Có thể thêm delay nhỏ nếu gặp lỗi Rate Limit 403
+            if (error.status === 403) {
+                 logger.warn(`GAPI Events [${addEventsId}]: Hit Rate Limit (403)? Delaying before next...`);
+                 await delay(1000); // Chờ 1 giây
+             }
         }
-    });
+        // *** KHÔNG CÓ Promise.all ở đây ***
+    } // Kết thúc vòng lặp for
+
+    logger.info(`GAPI Events [${addEventsId}]: Finished sequential add loop. Added: ${addedCount}, Errors: ${errorCount}`);
+    return { added: addedCount, errors: errorCount };
 }
 
 
-// --- Hàm Gọi API Backend Flask ---
-// Hàm này không cần thay đổi, nó chỉ sử dụng token đã lấy được
-async function fetchBackendWithAuth(endpoint, method = 'GET', accessToken, body = null) {
-    if (!accessToken) {
-        logger.error("BG: fetchBackend: No accessToken.");
-        throw new Error("Thiếu access token.");
-    }
-    try {
-        const options = {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${accessToken}`, // Gửi token lên backend
-                'Content-Type': 'application/json'
-            }
-        };
-        if (body && method !== 'GET' && method !== 'HEAD') {
-            options.body = JSON.stringify(body);
-        }
-        const targetUrl = `${FLASK_BACKEND_URL}${endpoint}`;
-        logger.debug(`BG: Fetching: ${method} ${targetUrl}`);
-        const response = await fetch(targetUrl, options);
-        let responseData = {};
-        try {
-            responseData = await response.json(); // Cố gắng parse JSON
-        } catch (e) {
-            // Nếu không phải JSON nhưng response không OK, vẫn ném lỗi HTTP
-            if (!response.ok) throw { status: response.status, message: `HTTP Error ${response.status}`};
-            // Nếu không phải JSON nhưng response OK, trả về object rỗng hoặc text nếu cần
-            // responseData = await response.text(); // Ví dụ nếu backend có thể trả text
-        }
-        if (!response.ok) {
-            logger.error(`BG: Backend Error: ${response.status}`, responseData);
-            // Ném lỗi với thông tin từ backend nếu có, hoặc lỗi HTTP chung
-            throw { status: response.status, message: responseData?.error || `HTTP Error ${response.status}`, data: responseData };
-        }
-        logger.info("BG: Backend response OK.");
-        return responseData;
-    } catch (error) {
-        logger.error(`BG: Fetch Error to ${endpoint}:`, error);
-        throw error; // Ném lại lỗi để hàm gọi xử lý
-    }
-}
-
-// --- Hàm DELAY ---
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// --- Hàm inject script và lấy kết quả ---
-// Hàm này không cần thay đổi
-async function executeScriptOnTab(tabId, funcOrFile, args = []) {
-     const target = { tabId: tabId };
-     const injection = {};
-     if (typeof funcOrFile === 'function') {
-         injection.func = funcOrFile;
-         injection.args = args;
-         injection.world = "MAIN"; // Chạy trong context của trang web
-     } else if (typeof funcOrFile === 'string' && funcOrFile.endsWith('.js')) {
-         injection.files = [funcOrFile];
-     } else {
-         throw new Error("Invalid funcOrFile for executeScriptOnTab");
-     }
-     logger.debug(`BG: Executing script on tab ${tabId}`, injection);
-     try {
-         const results = await chrome.scripting.executeScript({ target: target, ...injection });
-         logger.debug(`BG: Script result raw:`, results);
-         if (!results || results.length === 0) {
-             // Có thể frame không tồn tại hoặc script không trả về gì
-             logger.warn(`BG: Script executed but no result frame returned for tab ${tabId}.`);
-             // throw new Error(`Script không trả về kết quả từ frame.`); // Có thể không cần ném lỗi
-             return null; // Trả về null thay vì lỗi
-         }
-         // Kiểm tra lỗi trong kết quả của frame đầu tiên
-         if (results[0].error) {
-             logger.error(`BG: Frame script execution error:`, results[0].error);
-             throw new Error(`Lỗi chạy script trong trang: ${results[0].error.message || results[0].error}`);
-         }
-         // Trả về kết quả từ frame đầu tiên
-         return results[0].result;
-     } catch (err) {
-         logger.error(`BG: Error executing script on tab ${tabId}:`, err);
-         // Ném lỗi để hàm gọi xử lý
-         throw new Error(`Lỗi inject hoặc thực thi script: ${err.message}`);
-     }
-}
-
-
-// --- Các hàm chạy trong Content Script Context ---
-// Các hàm này được định nghĩa ở đây nhưng sẽ được inject vào trang MyUEL
-// Chúng không cần thay đổi liên quan đến việc lấy token
-function getContent_getWeekOptions(dropdownId) {
-     const weekDropdown = document.getElementById(dropdownId);
-     if (!weekDropdown) {
-         console.error(`[CS] Dropdown ID '${dropdownId}' not found!`);
-         return { error: `Dropdown tuần ID '${dropdownId}' không thấy!` };
-     }
-     const options = [];
-     for (let i = 0; i < weekDropdown.options.length; i++) {
-         const option = weekDropdown.options[i];
-         // Lọc các giá trị không hợp lệ hoặc "Tất cả" nếu cần
-         if (option.value && option.value !== "-1" && option.value !== "" && option.value !== "0") {
-             options.push({ value: option.value, text: option.text });
-         }
-     }
-     console.log(`[CS] Found ${options.length} valid week options.`);
-     return options; // Trả về mảng options
- }
-
-// Hàm này sẽ được inject để chọn tuần, chờ và lấy data
-// Không cần thay đổi
-async function getContent_selectWeekAndGetData(dropdownId, weekValue, tableId, dateId) {
-    console.log(`[CS] Selecting week value: ${weekValue}`);
-    const weekDropdown = document.getElementById(dropdownId);
-    const timetableTable = document.getElementById(tableId);
-    const dateSpan = document.getElementById(dateId);
-
-    if (!weekDropdown || !timetableTable || !dateSpan) {
-        let missing = [];
-        if (!weekDropdown) missing.push(`Dropdown ID ${dropdownId}`);
-        if (!timetableTable) missing.push(`Table ID ${tableId}`);
-        if (!dateSpan) missing.push(`Date ID ${dateId}`);
-        console.error("[CS] Missing elements:", missing);
-        return { error: `Thiếu phần tử HTML cần thiết: ${missing.join(', ')}` };
-    }
-
-    const oldDateText = dateSpan.innerText.trim(); // Lưu lại text ngày cũ để so sánh
-    weekDropdown.value = weekValue; // Chọn tuần mới
-    console.log("[CS] Dispatching 'change' event...");
-    weekDropdown.dispatchEvent(new Event('change', { bubbles: true })); // Kích hoạt sự kiện change
-
-    // --- LOGIC CHỜ ĐỢI ĐỘNG ---
-    const checkInterval = 300; // ms - Tần suất kiểm tra
-    const timeoutMs = 8000; // ms - Thời gian chờ tối đa (8 giây)
-    const endTime = Date.now() + timeoutMs;
-    let dateChanged = false;
-    console.log(`[CS Wait] Waiting for date change from "${oldDateText}" (max ${timeoutMs}ms)`);
-
-    while (Date.now() < endTime) {
-        // Lấy lại tham chiếu đến dateSpan phòng trường hợp nó bị thay thế hoàn toàn bởi AJAX
-        const currentDateSpan = document.getElementById(dateId);
-        if (!currentDateSpan) {
-             console.warn("[CS Wait] Date span element disappeared during wait.");
-             // Chờ một chút xem nó có xuất hiện lại không
-             await new Promise(r => setTimeout(r, checkInterval * 2));
-             continue; // Thử lại vòng lặp
-        }
-        const newDateText = currentDateSpan.innerText.trim();
-        // Kiểm tra xem text đã thay đổi và không rỗng
-        if (newDateText && newDateText !== oldDateText) {
-            console.log(`[CS Wait] Date changed successfully to "${newDateText}". Update detected.`);
-            dateChanged = true;
-            break; // Thoát vòng lặp chờ
-        }
-        // Nếu chưa thay đổi, chờ checkInterval rồi kiểm tra lại
-        await new Promise(r => setTimeout(r, checkInterval));
-    }
-
-    if (!dateChanged) {
-        // Nếu hết thời gian chờ mà không thấy thay đổi
-        console.warn(`[CS Wait] Timeout waiting for date text to change from "${oldDateText}". Proceeding to extract data anyway.`);
-        // Không ném lỗi ở đây, vẫn thử lấy dữ liệu xem sao, có thể trang chỉ cập nhật bảng mà không cập nhật ngày
-    }
-    // --- KẾT THÚC LOGIC CHỜ ĐỢI ĐỘNG ---
-
-    // Lấy dữ liệu sau khi chờ (hoặc timeout)
-    // Lấy lại tham chiếu phòng khi bị thay thế
-    const finalTimetableTable = document.getElementById(tableId);
-    const finalDateSpan = document.getElementById(dateId);
-
-    // Kiểm tra lại lần cuối trước khi lấy dữ liệu
-    if (!finalTimetableTable || !finalDateSpan) {
-        console.error("[CS] Timetable table or Date span element not found after wait.");
-        return { error: "Phần tử bảng hoặc ngày tháng bị lỗi sau khi chờ cập nhật." };
-    }
-
-    const timetableHtml = finalTimetableTable.outerHTML;
-    const dateRangeText = finalDateSpan.innerText.trim();
-
-    if (!timetableHtml || !dateRangeText) {
-        console.error("[CS] Failed to extract timetable HTML or date range text after wait.");
-        return { error: "Không trích xuất được dữ liệu HTML hoặc ngày tháng sau khi chờ." };
-    }
-
-    console.log(`[CS] Successfully extracted data for week value ${weekValue}. Date range: ${dateRangeText}`);
-    // Trả về dữ liệu dưới dạng object
-    return {
-        timetableHtml: timetableHtml,
-        dateRangeText: dateRangeText
-    };
-}
-
-
-// --- HÀM XỬ LÝ ĐỒNG BỘ TUẦN ---
-// Hàm này không cần thay đổi logic chính, chỉ gọi forceGoogleLoginAndGetToken đã sửa
+// --- HÀM XỬ LÝ ĐỒNG BỘ TUẦN (Sử dụng phiên bản addEvents tuần tự) ---
 async function handleSingleWeekSync(userId, tabId, sendResponse) {
-     logger.info(`BG: Starting SINGLE WEEK sync for user: ${userId} on tab ${tabId}`);
-     let accessToken = null;
-     const notificationTitle = "Đồng bộ Tuần Hiện tại";
-     let finalStatus = { status: "error", message: "Lỗi không xác định khi đồng bộ tuần." };
-
-     if (!tabId) {
-         logger.error("BG: Missing target tabId for single week sync.");
-         finalStatus = { status: "error", message: "Lỗi: Không tìm thấy Tab ID để đồng bộ." };
-         showNotification(notificationTitle + " - LỖI", finalStatus.message, 'error', 'week-notabid');
-         try { if (typeof sendResponse === 'function') sendResponse(finalStatus); } catch (e) {}
-         return;
-     }
-
-     try {
-         // Bước 1: Lấy Access Token (Hàm này đã được sửa)
-         logger.info("BG: (Week) Getting Google access token...");
-         showNotification(notificationTitle, "Đang yêu cầu quyền truy cập Google...", 'basic', 'week-auth');
-         try {
-             accessToken = await forceGoogleLoginAndGetToken(userId); // Gọi hàm đã sửa
-             // Token có thể null hoặc undefined nếu có lỗi bên trong forceGoogle...
-             if (!accessToken) throw new Error("Không nhận được access token hợp lệ từ Google.");
-             logger.info("BG: (Week) Google Token acquired successfully.");
-         } catch (tokenError) {
-             logger.error(`BG: (Week) FAILED to get Google token:`, tokenError);
-             // Ném lại lỗi để khối catch bên ngoài xử lý và thông báo
-             throw tokenError; // Đảm bảo lỗi được lan truyền
-         }
-
-         // Bước 2: Lấy dữ liệu TKB từ tab hiện tại
-         showNotification(notificationTitle, "Đang lấy dữ liệu TKB từ trang MyUEL...", 'basic', 'week-scrape');
-         logger.debug("BG: Getting target tab details:", tabId);
-         const targetTab = await chrome.tabs.get(tabId);
-         if (!targetTab) throw new Error(`Tab với ID ${tabId} không tồn tại.`);
-
-         const currentUrl = targetTab.url;
-         logger.info("BG: Target tab URL (Week):", currentUrl || "[No URL]");
-         // Kiểm tra URL của tab có đúng là trang TKB không
-         if (!currentUrl || !currentUrl.startsWith(MYUEL_TKB_URL_PATTERN)) {
-             let urlDesc = currentUrl ? currentUrl.substring(0, 80) + "..." : "Không có URL";
-             throw new Error(`Tab hiện tại (${urlDesc}) không phải là trang TKB MyUEL hợp lệ.`);
-         }
-         logger.info("BG: URL check OK (Week). Injecting content script...");
-         const targetTabId = targetTab.id; // ID của tab cần inject
-
-         // Inject content script để lấy HTML bảng và text ngày tháng hiện tại
-         let injectionResults;
-         try {
-             // Inject file content.js để lấy dữ liệu đang hiển thị
-             injectionResults = await executeScriptOnTab(targetTabId, 'content.js');
-         } catch (scriptError) {
-             // Bắt lỗi nếu inject hoặc script chạy lỗi
-             throw new Error(`Lỗi inject hoặc thực thi content script (Tuần): ${scriptError.message}`);
-         }
-         logger.debug("BG: Script inject result (Week):", injectionResults);
-
-         // Kiểm tra kết quả trả về từ content script
-         if (!injectionResults) {
-             throw new Error("Content script (content.js) không trả về kết quả hoặc bị lỗi (Tuần).");
-         }
-         const extractedData = injectionResults; // Kết quả trả về trực tiếp
-         if (extractedData.error) {
-             // Nếu content script trả về lỗi cụ thể
-             throw new Error(`Lỗi từ content script (Tuần): ${extractedData.error}`);
-         }
-         if (!extractedData.timetableHtml || !extractedData.dateRangeText) {
-             // Nếu thiếu dữ liệu quan trọng
-             throw new Error("Content script không trích xuất đủ dữ liệu HTML hoặc ngày tháng (Tuần).");
-         }
-         logger.info("BG: Extracted data OK (Week).");
-
-         // Bước 3: Gửi dữ liệu lên Backend Flask
-         showNotification(notificationTitle, "Đang gửi dữ liệu TKB lên server...", 'basic', 'week-sync');
-         const syncPayload = {
-             user_id: userId,
-             timetable_html: extractedData.timetableHtml,
-             date_range_text: extractedData.dateRangeText
-         };
-         const syncResult = await fetchBackendWithAuth('/sync_from_extension', 'POST', accessToken, syncPayload);
-         logger.info("BG: Backend call OK (Week). Result:", JSON.stringify(syncResult || {}, null, 2));
-
-         // Bước 4: Xử lý kết quả và thông báo
-         let finalMessage = "Đồng bộ tuần hiện tại hoàn tất.";
-         let notificationType = 'success'; // Mặc định là thành công
-         if (syncResult && typeof syncResult === 'object') {
-             finalMessage = syncResult.message || 'Đồng bộ thành công!'; // Lấy thông báo từ backend
-             const errorsReported = syncResult.errors ?? 0;
-             const addedReported = syncResult.added ?? 0;
-             const skippedReported = syncResult.skipped ?? 0;
-
-             if (errorsReported > 0) {
-                 notificationType = 'warning'; // Nếu có lỗi -> cảnh báo
-                 finalMessage = `Hoàn tất với ${errorsReported} lỗi: Thêm ${addedReported}, Bỏ qua ${skippedReported}.`;
-             } else if (addedReported !== undefined) { // Chỉ hiển thị chi tiết nếu có thông tin
-                 finalMessage = `Tuần ${syncResult.week ?? 'N/A'}: Thêm ${addedReported}, Bỏ qua ${skippedReported}, Lỗi ${errorsReported}.`;
-             }
-             if (syncResult.processing_time !== undefined) {
-                 finalMessage += ` (Thời gian: ${syncResult.processing_time}s)`;
-             }
-             finalStatus = { status: "success", message: finalMessage };
-         } else {
-             // Nếu kết quả backend không hợp lệ
-             logger.error("BG: Invalid backend result (Week):", syncResult);
-             finalMessage = "Phản hồi từ server xử lý không hợp lệ.";
-             notificationType = 'error';
-             finalStatus = { status: "error", message: finalMessage };
-         }
-         logger.debug("BG: Preparing final notification (Week).");
-         showNotification(notificationTitle + (notificationType === 'success' ? " - Hoàn tất" : " - Chú ý/Lỗi"), finalMessage, notificationType, 'week-done');
-
-     } catch (error) { // Bắt tất cả lỗi trong quá trình đồng bộ tuần
-         logger.error("BG: --- SINGLE WEEK SYNC FAILED ---", error);
-         let errorMsg = 'Lỗi đồng bộ tuần: ';
-         // Ưu tiên message từ lỗi nếu có
-         if (error?.message) {
-             errorMsg += error.message;
-         } else if (typeof error === 'string') {
-             errorMsg += error;
-         } else {
-             errorMsg += 'Lỗi không xác định.';
-         }
-         showNotification(notificationTitle + " - LỖI", errorMsg, 'error', 'week-error');
-         finalStatus = { status: "error", message: errorMsg };
-     } finally {
-         // Luôn gửi phản hồi về popup (nếu có thể)
-         logger.info("BG: Single week sync process finished.");
-         try {
-             if (typeof sendResponse === 'function') {
-                 sendResponse(finalStatus);
-             }
-         } catch (e) {
-             logger.warn("BG: Error calling sendResponse at the end of handleSingleWeekSync:", e.message);
-         }
-     }
-}
-
-
-// --- HÀM XỬ LÝ ĐỒNG BỘ HỌC KỲ ---
-// Hàm này không cần thay đổi logic chính, chỉ gọi forceGoogleLoginAndGetToken đã sửa
-async function handleSemesterSync(userId, sendResponse) {
-    logger.info(`BG: Starting SEMESTER sync process for user: ${userId}`);
-    let accessToken = null;
-    const notificationTitle = "Đồng bộ Học kỳ UEL";
-    // Kết quả tổng hợp cho toàn học kỳ
-    let overallResult = { added: 0, skipped: 0, errors: 0, weeksProcessed: 0, weeksTotal: 0 };
-    // Trạng thái cuối cùng gửi về popup
-    let finalStatus = { status: "error", message: "Lỗi khởi tạo đồng bộ học kỳ." };
-    // Đếm số tuần trống liên tiếp để dừng sớm
-    let consecutiveEmptyWeeks = 0;
-    const CONSECUTIVE_EMPTY_WEEKS_LIMIT = 4; // Dừng nếu gặp 4 tuần trống liên tiếp
-    // Thời gian chờ (có thể cần điều chỉnh tùy thuộc tốc độ mạng và server MyUEL)
-    const INTER_WEEK_DELAY_MS = 700; // Chờ giữa các lần xử lý tuần (tăng nhẹ)
-    const PRESELECT_WAIT_MS = 4500; // Chờ sau khi chọn trước tuần 2 (tăng nhẹ)
+    console.log(`[handleSingleWeekSync ENTRY V4.2.1] START User: ${userId}, Tab: ${tabId}`);
+    const uniqueId = `week-${Date.now()}`; logger.info(`BG [${uniqueId}]: Starting...`);
+    // ... (Initial vars and helpers remain the same) ...
+    let accessToken = null; const notificationTitle="Đồng bộ Tuần"; let finalStatus = { status:"pending", message:"Đang xử lý..."}; let scheduleList = []; let weekStartDate = ""; let weekEndDate = ""; let resultCounts = { added:0, skipped:0, errors:0 }; let offscreenDocWasClosed = false;
+    async function ensureCloseOffscreen() { if (!offscreenDocWasClosed) { logger.debug(`BG [${uniqueId}]: Closing offscreen...`); await closeOffscreenDocument(); offscreenDocWasClosed = true; } } function safeSendResponse(status) { if (typeof sendResponse === 'function'){ try { logger.info(`BG [${uniqueId}]: Sending final response:`, status); sendResponse(status); } catch (e) { logger.warn(`BG [${uniqueId}]: Error sending response:`, e); } } else { logger.warn(`BG [${uniqueId}]: sendResponse invalid.`); } } if(typeof sendResponse !== 'function'){ return; } logger.debug(`BG [${uniqueId}]: sendResponse OK.`); if (!tabId) { safeSendResponse({status:"error", message:"No Tab ID"}); return; }
 
     try {
-        // Bước 1: Lấy Access Token (Hàm này đã được sửa)
-        showNotification(notificationTitle, "Bắt đầu: Yêu cầu quyền truy cập Google...", 'basic', 'sem-auth');
-        try {
-            accessToken = await forceGoogleLoginAndGetToken(userId); // Gọi hàm đã sửa
-            if (!accessToken) throw new Error("Không nhận được access token hợp lệ từ Google.");
-            logger.info("BG: (Semester) Google Token acquired successfully.");
-        } catch (tokenError) {
-            logger.error(`BG: (Semester) FAILED to get Google token:`, tokenError);
-            throw tokenError; // Ném lỗi để dừng quá trình
-        }
+        // Step 1: Token
+        logger.info(`BG [${uniqueId}]: Getting token...`); showNotification(notificationTitle, "Yêu cầu Google...", 'basic', `week-auth-${uniqueId}`); accessToken = await forceGoogleLoginAndGetToken(userId); if (!accessToken) throw new Error("Token không hợp lệ."); logger.info(`BG [${uniqueId}]: Token OK [Len: ${accessToken.length}]`);
+        // Step 2: Get Data
+        logger.info(`BG [${uniqueId}]: Getting data...`); showNotification(notificationTitle, "Lấy dữ liệu TKB...", 'basic', `week-scrape-${uniqueId}`); const extractedData = await executeScriptOnTab(tabId, 'content.js'); if (!extractedData || extractedData.error || !extractedData.timetableHtml || !extractedData.dateRangeText) throw new Error(`Lỗi lấy TKB: ${extractedData?.error||'Data invalid'}`); logger.info(`BG [${uniqueId}]: Data OK.`);
+        // Step 3: Parse
+        logger.info(`BG [${uniqueId}]: Parsing...`); showNotification(notificationTitle, "Phân tích dữ liệu...", 'basic', `week-parse-${uniqueId}`); const parseResult = await parseHtmlViaOffscreen(extractedData.timetableHtml, extractedData.dateRangeText); scheduleList = parseResult.scheduleList; weekStartDate = parseResult.weekStartDate; weekEndDate = parseResult.weekEndDate; logger.info(`BG [${uniqueId}]: Parsed ${scheduleList.length} events.`); await ensureCloseOffscreen();
+        if (scheduleList.length === 0) { /* No events handling */ logger.info(`BG [${uniqueId}]: No events.`); finalStatus={status:"success", message:`Không có sự kiện tuần ${weekStartDate}-${weekEndDate}.`}; showNotification(notificationTitle+" - Xong", finalStatus.message,'success',`noev-${uniqueId}`); safeSendResponse(finalStatus); return; }
+        // Step 4: Fetch Existing
+        logger.info(`BG [${uniqueId}]: Fetching existing...`); showNotification(notificationTitle, `Kiểm tra lịch...`, 'basic', `week-fetch-${uniqueId}`); const existingEventsSet = await fetchExistingCalendarEvents(weekStartDate, weekEndDate, accessToken); logger.info(`BG [${uniqueId}]: Existing keys OK. Set size: ${existingEventsSet.size}`);
+        // Step 5: Filter & Assign Color
+        logger.info(`BG [${uniqueId}]: Filtering events...`); const eventsToAdd = []; const subjectColorMap={}; let nextColorIndex=0;
+        for (const eventData of scheduleList) { const eventKey = `${eventData.subject}|${eventData.start_datetime_iso}|${eventData.end_datetime_iso}|${(eventData.room||'').trim()}`; if (!existingEventsSet.has(eventKey)) { const subjectName=eventData.subject||"N/A"; let colorId=subjectColorMap[subjectName]; if (!colorId) { colorId=AVAILABLE_EVENT_COLORS[nextColorIndex++ % AVAILABLE_EVENT_COLORS.length]; subjectColorMap[subjectName]=colorId; } eventData.colorId=colorId; eventsToAdd.push(eventData); } else { resultCounts.skipped++; } } logger.info(`BG [${uniqueId}]: Filter done. Add: ${eventsToAdd.length}, Skip: ${resultCounts.skipped}`);
+        // Step 6: Add (*** SỬ DỤNG PHIÊN BẢN TUẦN TỰ ***)
+        logger.info(`BG [${uniqueId}]: Adding events sequentially...`);
+        if (eventsToAdd.length > 0) { showNotification(notificationTitle, `Đang thêm ${eventsToAdd.length}...`, 'basic', `week-add-${uniqueId}`); const addResult = await addEventsToCalendar(eventsToAdd, accessToken); resultCounts.added = addResult.added; resultCounts.errors = addResult.errors; logger.info(`BG [${uniqueId}]: Add result: Added ${resultCounts.added}, Errors ${resultCounts.errors}`); }
+        else { logger.info(`BG [${uniqueId}]: No new events.`); }
+        // Step 7: Final Status
+        logger.info(`BG [${uniqueId}]: Preparing final status...`); let finalMessage = `Tuần ${weekStartDate}-${weekEndDate}: Thêm ${resultCounts.added}, Bỏ qua ${resultCounts.skipped}, Lỗi ${resultCounts.errors}.`;
+        if (resultCounts.errors > 0) { finalStatus = { status:"error", message:finalMessage}; showNotification(notificationTitle+" - Lỗi",finalMessage,'error',`done-err-${uniqueId}`);}
+        else { finalStatus = { status:"success", message:finalMessage}; showNotification(notificationTitle+" - Xong",finalMessage,'success',`done-ok-${uniqueId}`);}
+        safeSendResponse(finalStatus);
 
-        // Bước 2: Tìm tab TKB MyUEL đang mở
-        showNotification(notificationTitle, "Đang tìm tab Thời khóa biểu MyUEL...", 'basic', 'sem-findtab');
-        const matchingTabs = await chrome.tabs.query({ url: MYUEL_TKB_URL_PATTERN + "*" });
-        if (!matchingTabs || matchingTabs.length === 0) {
-            throw new Error(`Không tìm thấy tab TKB MyUEL nào đang mở. Vui lòng mở trang TKB trước.`);
-        }
-        if (matchingTabs.length > 1) {
-            logger.warn(`BG: Found ${matchingTabs.length} TKB tabs. Using the first one found.`);
-        }
-        const targetTabId = matchingTabs[0].id; // Lấy ID của tab đầu tiên tìm thấy
-        logger.info(`BG: Found target TKB tab: ID=${targetTabId}, URL=${matchingTabs[0].url}`);
-
-        // Bước 3: Lấy danh sách các tuần từ dropdown trên trang TKB
-        showNotification(notificationTitle, "Đang lấy danh sách tuần học...", 'basic', 'sem-getweeks');
-        const weekOptionsResult = await executeScriptOnTab(targetTabId, getContent_getWeekOptions, [WEEK_DROPDOWN_ID]);
-
-        // Kiểm tra kết quả từ script lấy tuần
-        if (!weekOptionsResult) {
-             throw new Error("Không nhận được phản hồi khi lấy danh sách tuần từ trang.");
-        }
-        if (weekOptionsResult.error) {
-            throw new Error(`Lỗi khi lấy danh sách tuần: ${weekOptionsResult.error}`);
-        }
-        if (!Array.isArray(weekOptionsResult) || weekOptionsResult.length === 0) {
-            throw new Error("Không tìm thấy tuần học hợp lệ nào trong danh sách.");
-        }
-        // Lọc lại lần nữa để chắc chắn (mặc dù hàm getContent đã lọc)
-        const weekOptions = weekOptionsResult.filter(option => option.value && option.value !== "-1" && option.value !== "" && option.value !== "0");
-        logger.info(`BG: Found ${weekOptions.length} valid weeks to process.`);
-        if (weekOptions.length === 0) {
-            throw new Error("Không có tuần học hợp lệ nào để đồng bộ.");
-        }
-        overallResult.weeksTotal = weekOptions.length; // Tổng số tuần cần xử lý
-
-        // --- BƯỚC 3.5: CHỌN TRƯỚC TUẦN 2 (NẾU CÓ > 1 TUẦN) ---
-        // Mục đích: Đưa trang TKB ra khỏi trạng thái mặc định của tuần đầu tiên
-        // trước khi bắt đầu vòng lặp chính, giúp việc chọn tuần sau đó ổn định hơn.
-        if (weekOptions.length > 1) {
-            const secondWeekValue = weekOptions[1].value; // Lấy value của tuần thứ hai
-            logger.info(`BG: Pre-selecting week 2 (value: ${secondWeekValue}) to ensure proper page state change...`);
-            showNotification(notificationTitle, `Đang chuẩn bị (tải trước tuần 2/${weekOptions.length})...`, 'basic', `sem-preselect`);
-            try {
-                // Inject một hàm đơn giản chỉ để chọn tuần và dispatch event, không cần chờ lấy data ở bước này
-                await executeScriptOnTab(
-                    targetTabId,
-                    // Hàm inline để inject
-                    (dropdownId, weekVal) => {
-                         const dropdown = document.getElementById(dropdownId);
-                         if (dropdown) {
-                             dropdown.value = weekVal; // Chọn giá trị
-                             dropdown.dispatchEvent(new Event('change', { bubbles: true })); // Giả lập sự kiện change
-                             console.log(`[CS PreSelect] Dispatched change event for week value: ${weekVal}`);
-                         } else {
-                             console.error(`[CS PreSelect] Dropdown with ID '${dropdownId}' not found!`);
-                             // Không ném lỗi từ đây để quá trình có thể tiếp tục
-                         }
-                     },
-                     // Truyền tham số cho hàm inline
-                     [WEEK_DROPDOWN_ID, secondWeekValue]
-                );
-                logger.debug(`BG: Pre-selection change event dispatched. Waiting ${PRESELECT_WAIT_MS}ms for page to potentially update...`);
-                await delay(PRESELECT_WAIT_MS); // Chờ một khoảng thời gian đủ để trang xử lý AJAX (nếu có)
-                logger.info("BG: Pre-selection of week 2 likely complete. Starting main loop.");
-            } catch (preSelectError) {
-                // Nếu bước này lỗi cũng không nên dừng hẳn, vòng lặp sau có thể vẫn hoạt động
-                logger.error("BG: Error during pre-selection of week 2 (non-critical)", preSelectError);
-                showNotification(notificationTitle + " - Cảnh báo", `Lỗi nhỏ khi tải trước tuần 2: ${preSelectError.message}. Tiếp tục đồng bộ...`, 'warning', `sem-preselect-err`);
-                await delay(1000); // Chờ thêm chút trước khi vào vòng lặp chính
-            }
-        } else {
-             logger.info("BG: Only one week found, skipping pre-selection step.");
-        }
-        // --- KẾT THÚC CHỌN TRƯỚC ---
-
-        // --- Vòng lặp xử lý TẤT CẢ các tuần (từ tuần đầu tiên, index 0) ---
-        showNotification(notificationTitle, `Bắt đầu xử lý ${weekOptions.length} tuần...`, 'basic', 'sem-loop-start');
-        for (let i = 0; i < weekOptions.length; i++) {
-            // Kiểm tra điều kiện dừng sớm do quá nhiều tuần trống
-            if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) {
-                logger.warn(`BG: Stopping semester sync early because ${consecutiveEmptyWeeks} consecutive empty/error weeks were encountered (limit: ${CONSECUTIVE_EMPTY_WEEKS_LIMIT}).`);
-                showNotification(notificationTitle, `Dừng sớm do gặp ${CONSECUTIVE_EMPTY_WEEKS_LIMIT} tuần trống hoặc lỗi liên tiếp.`, 'info', `sem-stop-early`);
-                break; // Thoát khỏi vòng lặp for
-            }
-
-            const week = weekOptions[i];
-            const progressMsg = `Tuần ${i + 1}/${weekOptions.length}: ${week.text}`; // Hiển thị tiến trình
-            logger.info(`BG: ----- Processing ${progressMsg} (Value: ${week.value}) -----`);
-            showNotification(notificationTitle, `Đang xử lý ${progressMsg}...`, 'basic', `sem-week-${i}`);
-            let extractedData = null; // Dữ liệu trích xuất cho tuần hiện tại
-
-            try {
-                 logger.debug(`BG: Attempting to select week '${week.value}', wait, and extract data...`);
-                 // Gọi hàm inject phức tạp: chọn tuần -> chờ trang update -> lấy data
-                 extractedData = await executeScriptOnTab(
-                     targetTabId,
-                     getContent_selectWeekAndGetData, // Hàm được định nghĩa ở trên
-                     [ // Mảng các tham số cho hàm getContent_selectWeekAndGetData
-                         WEEK_DROPDOWN_ID,
-                         week.value, // Giá trị tuần cần chọn
-                         TIMETABLE_TABLE_ID_STRING, // ID bảng TKB
-                         DATE_SPAN_ID_STRING      // ID span hiển thị ngày
-                     ]
-                 );
-
-                 // Kiểm tra kết quả trả về từ script inject
-                 if (!extractedData) {
-                      throw new Error("Không nhận được kết quả từ script chọn/lấy dữ liệu tuần.");
-                 }
-                 if (extractedData.error) {
-                     throw new Error(extractedData.error); // Ném lỗi nếu script trả về lỗi cụ thể
-                 }
-                 if (!extractedData.timetableHtml || !extractedData.dateRangeText) {
-                     // Kiểm tra xem có đủ dữ liệu không
-                     throw new Error("Script không trích xuất đủ dữ liệu HTML hoặc ngày tháng cho tuần.");
-                 }
-                 logger.info(`BG: Successfully extracted data for week: ${week.text} (Date: ${extractedData.dateRangeText})`);
-
-            } catch (extractOrSelectError) {
-                 // Nếu có lỗi trong quá trình chọn tuần, chờ, hoặc lấy data
-                 logger.error(`BG: Failed processing week ${i + 1} ('${week.text}'). Error:`, extractOrSelectError);
-                 overallResult.errors++; // Ghi nhận lỗi tổng
-                 showNotification(notificationTitle + " - Lỗi Tuần", `Lỗi xử lý tuần ${i + 1} (${week.text}): ${extractOrSelectError.message}`, 'error', `sem-week-err-${i}`);
-                 consecutiveEmptyWeeks++; // Tăng bộ đếm tuần lỗi/trống
-                 logger.info(`BG: Consecutive empty/error weeks count: ${consecutiveEmptyWeeks}`);
-                 await delay(1000); // Chờ chút trước khi sang tuần tiếp theo
-                 continue; // Bỏ qua tuần bị lỗi này và tiếp tục vòng lặp
-            }
-
-            // Nếu lấy dữ liệu thành công, gửi lên backend
-            showNotification(notificationTitle, `Đang gửi dữ liệu ${progressMsg}...`, 'basic', `sem-sync-${i}`);
-            const syncPayload = {
-                user_id: userId,
-                timetable_html: extractedData.timetableHtml,
-                date_range_text: extractedData.dateRangeText
-            };
-
-            try {
-                // Gọi backend để đồng bộ tuần này
-                const syncResult = await fetchBackendWithAuth('/sync_from_extension', 'POST', accessToken, syncPayload);
-                logger.info(`BG: Backend response for week ${i + 1} (${week.text}):`, JSON.stringify(syncResult || {}, null, 2));
-
-                // Cập nhật kết quả tổng và biến đếm tuần trống/lỗi
-                if (syncResult && typeof syncResult === 'object') {
-                    const added = syncResult.added ?? 0;
-                    const skipped = syncResult.skipped ?? 0;
-                    const errors = syncResult.errors ?? 0;
-                    overallResult.added += added;
-                    overallResult.skipped += skipped;
-                    overallResult.errors += errors; // Cộng dồn lỗi từ backend nữa
-
-                    // Kiểm tra xem tuần này có phải là tuần trống/lỗi không để reset bộ đếm
-                    // Một tuần được coi là không trống nếu có sự kiện được thêm, bỏ qua, hoặc backend báo lỗi cụ thể cho tuần đó
-                    if (added > 0 || skipped > 0 || errors > 0) {
-                        consecutiveEmptyWeeks = 0; // Reset bộ đếm
-                    } else {
-                         // Nếu backend không báo thêm/skip/lỗi -> coi là tuần trống
-                         consecutiveEmptyWeeks++;
-                         logger.info(`BG: Week ${i+1} appears empty or backend reported no changes. Consecutive count: ${consecutiveEmptyWeeks}`);
-                    }
-                } else {
-                     // Nếu backend trả về lỗi không xác định hoặc không phải object
-                     logger.error(`BG: Invalid backend response for week ${i+1}. Incrementing overall errors.`);
-                     overallResult.errors++;
-                     consecutiveEmptyWeeks++; // Coi như tuần lỗi
-                }
-            } catch (backendError) {
-                // Nếu gọi backend thất bại (network error, 5xx, 401...)
-                logger.error(`BG: Backend API call failed for week ${i + 1} (${week.text}). Error:`, backendError);
-                overallResult.errors++; // Ghi nhận lỗi tổng
-                consecutiveEmptyWeeks++; // Coi như tuần lỗi
-                let backendErrorMsg = backendError.message || "Lỗi không xác định từ server";
-                // Xử lý trường hợp token hết hạn
-                if (backendError.status === 401 || backendError.message?.includes("Invalid/Expired Google token")) {
-                    backendErrorMsg = "Token Google hết hạn hoặc không hợp lệ.";
-                    showNotification(notificationTitle + " - LỖI NGHIÊM TRỌNG", `Lỗi đồng bộ tuần ${i + 1}: ${backendErrorMsg} Vui lòng thử lại.`, 'error', `sem-be-fatal-err-${i}`);
-                    // Ném lỗi để dừng toàn bộ quá trình đồng bộ học kỳ
-                    throw new Error(backendErrorMsg);
-                } else {
-                     // Các lỗi backend khác
-                     showNotification(notificationTitle + " - Lỗi Backend", `Lỗi đồng bộ tuần ${i + 1}: ${backendErrorMsg}`, 'error', `sem-be-err-${i}`);
-                }
-            } // Kết thúc try-catch gọi backend
-
-            overallResult.weeksProcessed++; // Tăng số tuần đã thực sự được xử lý (qua các bước)
-            logger.debug(`BG: Finished week ${i+1}. Delaying ${INTER_WEEK_DELAY_MS}ms before next week...`);
-            await delay(INTER_WEEK_DELAY_MS); // Delay ngắn giữa các tuần
-
-        } // --- Kết thúc vòng lặp for qua các tuần ---
-
-        // --- Tạo thông báo tổng kết cuối cùng ---
-        logger.info("BG: Semester sync loop finished.");
-        let finalSummary = `Đồng bộ học kỳ hoàn tất! Đã xử lý ${overallResult.weeksProcessed}/${overallResult.weeksTotal} tuần.`;
-        finalSummary += ` Kết quả tổng cộng: Thêm ${overallResult.added} sự kiện, Bỏ qua ${overallResult.skipped} (đã có), Gặp ${overallResult.errors} lỗi.`;
-        // Thêm thông báo nếu dừng sớm
-        if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT && overallResult.weeksProcessed < overallResult.weeksTotal) {
-            finalSummary += ` (Đã dừng sớm do gặp ${CONSECUTIVE_EMPTY_WEEKS_LIMIT} tuần trống/lỗi liên tiếp.)`;
-        }
-        logger.info("BG: Final Semester Summary:", finalSummary);
-        // Hiển thị thông báo cuối cùng
-        showNotification(
-            notificationTitle + " - Hoàn tất",
-            finalSummary,
-            (overallResult.errors > 0 ? 'warning' : 'success'), // Loại thông báo tùy thuộc có lỗi hay không
-            'sem-done'
-        );
-        // Cập nhật trạng thái thành công gửi về popup
-        finalStatus = { status: "success", message: finalSummary };
-
-    } catch (error) { // Bắt lỗi tổng thể của cả quá trình đồng bộ học kỳ
-        logger.error("BG: --- SEMESTER SYNC PROCESS FAILED (Outer Catch) ---", error);
-        let errorMsg = 'Lỗi nghiêm trọng khi đồng bộ học kỳ: ';
-        errorMsg += error?.message || 'Lỗi không xác định.';
-        showNotification(notificationTitle + " - LỖI NGHIÊM TRỌNG", errorMsg, 'error', 'sem-error-final');
-        // Cập nhật trạng thái lỗi gửi về popup
-        finalStatus = { status: "error", message: errorMsg };
-    } finally { // Khối này luôn chạy dù thành công hay lỗi
-        // Gửi phản hồi cuối cùng về popup
-        logger.info("BG: Semester sync handleSemesterSync function finished execution.");
-        try {
-            if (typeof sendResponse === 'function') {
-                sendResponse(finalStatus);
-            }
-        } catch (e) {
-            logger.warn("BG: Error calling sendResponse at the end of handleSemesterSync:", e.message);
-        }
+    } catch (error) { // Outer Catch
+        logger.error(`BG [${uniqueId}]: --- SINGLE WEEK SYNC FAILED ---`); logger.error(`BG [${uniqueId}]: Error Object:`, error); logger.error(`BG [${uniqueId}]: Error Msg: ${error?.message}`);
+        let errorMsg = `Lỗi ĐB tuần: ${error?.message || 'Lỗi KXD.'}`; if (error?.status===401) errorMsg="Lỗi xác thực Google (401)."; else if (error?.status===403) errorMsg="Lỗi quyền Google Cal (403).";
+        finalStatus = { status: "error", message: errorMsg }; showNotification(notificationTitle + " - LỖI", errorMsg, 'error', `week-error-${uniqueId}`);
+        await ensureCloseOffscreen(); safeSendResponse(finalStatus);
     }
 }
 
+// --- HÀM XỬ LÝ ĐỒNG BỘ HỌC KỲ (SỬ DỤNG PHIÊN BẢN addEvents tuần tự + Delay đã giảm) ---
+async function handleSemesterSync(userId, sendResponse) {
+    console.log(`[handleSemesterSync ENTRY V4.2.1] START User: ${userId}`);
+    const uniqueId = `sem-${Date.now()}`; logger.info(`BG [${uniqueId}]: Starting...`);
+    let accessToken = null; const notificationTitle="Đồng bộ Học kỳ"; let overallResult = { added:0, skipped:0, errors:0, weeksProcessed:0, weeksTotal:0, weeksWithApiError:0 }; let finalStatus = { status:"pending", message:"Đang xử lý..."}; let offscreenDocWasClosed = false;
+    async function ensureCloseOffscreen() { if (!offscreenDocWasClosed) { logger.debug(`BG [${uniqueId}]: Closing offscreen...`); await closeOffscreenDocument(); offscreenDocWasClosed = true; } } function safeSendResponse(status) { if (typeof sendResponse === 'function'){ try { logger.info(`BG [${uniqueId}]: Sending final response:`, status); sendResponse(status); } catch (e) { logger.warn(`BG [${uniqueId}]: Error sending response:`, e); } } else { logger.warn(`BG [${uniqueId}]: sendResponse invalid.`); } } if(typeof sendResponse !== 'function'){ return; } logger.debug(`BG [${uniqueId}]: sendResponse OK.`);
+
+    try {
+        // Step 1: Token
+        logger.info(`BG [${uniqueId}]: Getting token...`); accessToken = await forceGoogleLoginAndGetToken(userId); if (!accessToken) throw new Error("Token không hợp lệ."); logger.info(`BG [${uniqueId}]: Token OK [Len: ${accessToken.length}]`);
+        // Step 2&3: Find Tab, Weeks, Pre-select
+        logger.info(`BG [${uniqueId}]: Finding tab & getting weeks...`); const matchingTabs = await chrome.tabs.query({ url: MYUEL_TKB_URL_PATTERN + "*" }); if (matchingTabs.length === 0) throw new Error(`Tab TKB không tìm thấy.`); const targetTabId = matchingTabs[0].id; logger.info(`BG [${uniqueId}]: Target Tab: ${targetTabId}`); const weekOptionsResult = await executeScriptOnTab(targetTabId, 'getContent_getWeekOptions', [WEEK_DROPDOWN_ID]); if (!weekOptionsResult || weekOptionsResult.error || !Array.isArray(weekOptionsResult)) throw new Error(`Lỗi lấy tuần: ${weekOptionsResult?.error||'?'}`); const weekOptions = weekOptionsResult.filter(opt=>opt.value && opt.value !== "-1"); if (weekOptions.length === 0) throw new Error("Không có tuần hợp lệ."); overallResult.weeksTotal = weekOptions.length; logger.info(`BG [${uniqueId}]: Found ${weekOptions.length} weeks.`); let consecutiveEmptyWeeks=0; const PRESELECT_WAIT_MS=3500;
+        if (weekOptions.length > 1) { try { logger.debug(`BG [${uniqueId}]: Pre-selecting...`); await executeScriptOnTab(targetTabId, (ddId,wVal)=>{const d=document.getElementById(ddId);if(d)d.value=wVal;d.dispatchEvent(new Event('change',{bubbles:true}));}, [WEEK_DROPDOWN_ID, weekOptions[1].value]); await delay(PRESELECT_WAIT_MS); } catch (preSelectError) { logger.error(`BG [${uniqueId}]: Pre-select error:`, preSelectError); await delay(500); } } logger.info(`BG [${uniqueId}]: Pre-select finished.`);
+
+        // Step 4: Week Loop (*** Sử dụng INTER_WEEK_DELAY_MS đã giảm ***)
+        logger.info(`BG [${uniqueId}]: Starting week loop (Delay: ${INTER_WEEK_DELAY_MS}ms)...`);
+        for (let i = 0; i < weekOptions.length; i++) {
+            overallResult.weeksProcessed++; if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) { logger.warn(`BG [${uniqueId}]: Stop early.`); break; } const week = weekOptions[i]; const progressMsg = `Tuần ${i+1}/${weekOptions.length}: ${week.text}`; logger.info(`BG [${uniqueId}]: --- Proc W${i+1} ---`); showNotification(notificationTitle, `Xử lý ${progressMsg}...`, 'basic', `sem-week-${i}-${uniqueId}`); let scheduleListForWeek = [], weekStartDate = "", weekEndDate = "";
+            try {
+                 // 4a. Get Data
+                 logger.debug(`BG [${uniqueId}]: W${i+1} - Getting data...`); const extractedData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, week.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]); if (!extractedData || extractedData.error) throw new Error(extractedData?.error || `Lỗi lấy data W${i+1}.`); if (!extractedData.timetableHtml || !extractedData.dateRangeText) throw new Error(`Thiếu HTML/Ngày W${i+1}.`); logger.info(`BG [${uniqueId}]: W${i+1} - Data extracted.`);
+                 // 4b. Parse
+                 logger.info(`BG [${uniqueId}]: W${i+1} - Parsing...`); showNotification(notificationTitle, `Phân tích ${progressMsg}...`, 'basic', `sem-parse-${i}-${uniqueId}`); const parseResult = await parseHtmlViaOffscreen(extractedData.timetableHtml, extractedData.dateRangeText); scheduleListForWeek = parseResult.scheduleList; weekStartDate = parseResult.weekStartDate; weekEndDate = parseResult.weekEndDate; logger.info(`BG [${uniqueId}]: W${i+1} - Parsed ${scheduleListForWeek.length} events.`); if (scheduleListForWeek.length === 0) consecutiveEmptyWeeks++; else consecutiveEmptyWeeks = 0;
+                 // 4c,d,e: API Interaction (*** Sử dụng addEvents tuần tự ***)
+                 if (scheduleListForWeek.length > 0) {
+                      logger.info(`BG [${uniqueId}]: W${i+1} - Fetching existing...`); showNotification(notificationTitle, `Kiểm tra lịch (W${i+1})...`, 'basic', `sem-fetch-${i}-${uniqueId}`); const existingEventsSet = await fetchExistingCalendarEvents(weekStartDate, weekEndDate, accessToken); logger.info(`BG [${uniqueId}]: W${i+1} - Existing keys: ${existingEventsSet.size}`); const eventsToAdd = []; const subjectColorMap={}; let nextColorIndex=0; let currentSkipped=0;
+                      for (const eventData of scheduleListForWeek) { const eventKey = `${eventData.subject}|${eventData.start_datetime_iso}|${eventData.end_datetime_iso}|${(eventData.room||'').trim()}`; if (!existingEventsSet.has(eventKey)) { const subjectName=eventData.subject||"N/A"; let colorId=subjectColorMap[subjectName]; if(!colorId){colorId=AVAILABLE_EVENT_COLORS[nextColorIndex++%AVAILABLE_EVENT_COLORS.length];subjectColorMap[subjectName]=colorId;} eventData.colorId=colorId; eventsToAdd.push(eventData); } else { currentSkipped++; } } overallResult.skipped += currentSkipped; logger.info(`BG [${uniqueId}]: W${i+1} - To add: ${eventsToAdd.length}, Skip: ${currentSkipped}`);
+                     if (eventsToAdd.length > 0) {
+                          logger.info(`BG [${uniqueId}]: W${i+1} - Adding events sequentially...`); showNotification(notificationTitle, `Thêm ${eventsToAdd.length} (W${i+1})...`, 'basic', `sem-add-${i}-${uniqueId}`);
+                          const addResult = await addEventsToCalendar(eventsToAdd, accessToken); // <-- Gọi hàm tuần tự
+                          overallResult.added += addResult.added; overallResult.errors += addResult.errors; if (addResult.errors > 0) overallResult.weeksWithApiError++; logger.info(`BG [${uniqueId}]: W${i+1} - Add result: Added ${addResult.added}, Err ${addResult.errors}`);
+                     } else { logger.info(`BG [${uniqueId}]: W${i+1} - No new events.`); }
+                 } else { logger.info(`BG [${uniqueId}]: W${i+1} - Skip API.`); }
+            } catch (weekError) { logger.error(`BG [${uniqueId}]: W${i+1} Error:`, weekError); overallResult.errors++; consecutiveEmptyWeeks++; showNotification(notificationTitle+"-Lỗi Tuần", `Lỗi W${i+1}: ${weekError.message}`, 'error', `sem-err-${i}-${uniqueId}`); if (weekError.message.includes("GCal:") && (weekError.status===401||weekError.status===403)) throw weekError; }
+             // <<< SỬ DỤNG DELAY ĐÃ GIẢM >>>
+             logger.debug(`BG [${uniqueId}]: Delaying ${INTER_WEEK_DELAY_MS}ms...`);
+             await delay(INTER_WEEK_DELAY_MS);
+        } // End week loop
+        logger.info(`BG [${uniqueId}]: Semester loop finished.`);
+
+       // Final Summary & Response (Logic không đổi)
+        // ... (Tạo finalMessage, finalStatus) ...
+        let processedCount = overallResult.weeksProcessed - (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT ? CONSECUTIVE_EMPTY_WEEKS_LIMIT : 0); let finalMessage = `Đồng bộ HK xong! (${processedCount}/${overallResult.weeksTotal} tuần) Thêm: ${overallResult.added}, Skip: ${overallResult.skipped}, Lỗi Thêm: ${overallResult.errors}.`; if (overallResult.weeksWithApiError > 0) finalMessage += ` (${overallResult.weeksWithApiError} tuần lỗi API)`; if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) finalMessage += ` (Dừng sớm)`; logger.info(`BG [${uniqueId}]: Final Summary: ${finalMessage}`); if (overallResult.errors > 0) { finalStatus = { status: "error", message: finalMessage }; showNotification(notificationTitle + " - Có lỗi", finalMessage, 'error', `sem-done-err-${uniqueId}`); } else { finalStatus = { status: "success", message: finalMessage }; showNotification(notificationTitle + " - Thành công", finalMessage, 'success', `sem-done-ok-${uniqueId}`); }
+        await ensureCloseOffscreen();
+        safeSendResponse(finalStatus);
+
+    } catch (error) { // Outer Catch
+        logger.error(`BG [${uniqueId}]: --- SEMESTER SYNC FAILED ---`); logger.error(`BG [${uniqueId}]: Error Object:`, error); logger.error(`BG [${uniqueId}]: Error Msg: ${error?.message}`);
+        let errorMsg = `Lỗi nghiêm trọng đồng bộ HK: ${error?.message || 'Unknown error.'}`; /* ... (status handling) ... */ finalStatus = { status: "error", message: errorMsg }; showNotification(notificationTitle + " - LỖI", errorMsg, 'error', `sem-error-final-${uniqueId}`);
+        await ensureCloseOffscreen(); safeSendResponse(finalStatus);
+    }
+}
 
 // --- Listener chính nhận message từ popup.js ---
-// Không cần thay đổi
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    logger.debug("BG: Message received", message);
-
-    // Xử lý yêu cầu đồng bộ tuần hiện tại
-    if (message.action === "startSync") {
-        const userId = message.userId;
-        const targetTabId = message.tabId; // Popup đã kiểm tra và gửi kèm tabId
-        if (!userId || !targetTabId) {
-            logger.error("BG: Week Sync request missing userId or tabId.");
-            sendResponse({ status: "error", message:"Thiếu thông tin UserID hoặc TabID để bắt đầu." });
-            return false; // Chỉ ra rằng sendResponse sẽ không được gọi không đồng bộ
-        }
-        // Gọi hàm xử lý đồng bộ tuần
-        handleSingleWeekSync(userId, targetTabId, sendResponse);
-        // Quan trọng: Return true để chỉ ra rằng sendResponse sẽ được gọi không đồng bộ (async)
-        return true;
-
-    // Xử lý yêu cầu đồng bộ cả học kỳ
-    } else if (message.action === "startSemesterSync") {
-        const userId = message.userId;
-        if (!userId) {
-            logger.error("BG: Semester Sync request missing userId.");
-            sendResponse({ status: "error", message:"Thiếu thông tin User ID để bắt đầu." });
-            return false; // Chỉ ra rằng sendResponse sẽ không được gọi không đồng bộ
-        }
-        // Gọi hàm xử lý đồng bộ học kỳ
-        handleSemesterSync(userId, sendResponse);
-        // Quan trọng: Return true để chỉ ra rằng sendResponse sẽ được gọi không đồng bộ (async)
-        return true;
-    }
-
-    // Nếu không khớp action nào
-    logger.warn("BG: Received unknown message action:", message.action);
-    return false; // Không xử lý message này
+    console.log('[onMessage Listener] Received:', message); if (message.target === 'offscreen') return false;
+    if (message.action === "startSync") { console.log('[Msg List.] Dispatch: handleSingleWeekSync'); const userId=message.userId, tabId=message.tabId; if(!userId||!tabId){console.error('[Msg List.] Args missing startSync.'); try{sendResponse({status:"error",message:"Thiếu ID/Tab."});}catch(e){} return false;} handleSingleWeekSync(userId, tabId, sendResponse); return true; }
+    else if (message.action === "startSemesterSync") { console.log('[Msg List.] Dispatch: handleSemesterSync'); const userId=message.userId; if(!userId){console.error('[Msg List.] Args missing startSemesterSync.'); try{sendResponse({status:"error",message:"Thiếu User ID."});}catch(e){} return false;} handleSemesterSync(userId, sendResponse); return true; }
+    logger.warn("BG: Unknown action:", message.action); return false;
 });
 
-// Log khởi động service worker
-logger.info("Background service worker started and listener added. Waiting for messages.");
+logger.info("Background service worker started. V4.2.1 Restore Sequential Add + Reduced Delay.");
