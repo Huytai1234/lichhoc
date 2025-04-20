@@ -440,9 +440,9 @@ async function handleSingleWeekSync(userId, tabId, sendResponse) {
 }
 
 
-// --- HÀM XỬ LÝ ĐỒNG BỘ HỌC KỲ (Đã sửa lỗi cú pháp + Tối ưu + Timer) ---
+// --- HÀM XỬ LÝ ĐỒNG BỘ HỌC KỲ (Đã sửa lỗi cú pháp lần 2 + Tối ưu + Timer + Notifs) ---
 async function handleSemesterSync(userId, sendResponse) {
-    console.log(`[handleSemesterSync ENTRY V4.2.1 + Timer + Optimized + Syntax Fix] START User: ${userId}`);
+    console.log(`[handleSemesterSync ENTRY V4.2.1 + Detailed Notifs + Optimized + Syntax Fix 2] START User: ${userId}`);
     const uniqueId = `sem-${Date.now()}`; logger.info(`BG [${uniqueId}]: Starting...`);
     let startTime = null;
     let accessToken = null; const notificationTitle="Đồng bộ Học kỳ"; let overallResult = { added:0, skipped:0, errors:0, weeksProcessed:0, weeksTotal:0, weeksWithApiError:0 }; let finalStatus = { status:"pending", message:"Đang xử lý..."};
@@ -467,58 +467,27 @@ async function handleSemesterSync(userId, sendResponse) {
         if (weekOptions.length > 1) { try { logger.debug(`BG [${uniqueId}]: Pre-selecting...`); await executeScriptOnTab(targetTabId, (ddId,wVal)=>{const d=document.getElementById(ddId);if(d)d.value=wVal;d.dispatchEvent(new Event('change',{bubbles:true}));}, [WEEK_DROPDOWN_ID, weekOptions[1].value]); await delay(PRESELECT_WAIT_MS); } catch (preSelectError) { logger.error(`BG [${uniqueId}]: Pre-select error:`, preSelectError); await delay(500); } } logger.info(`BG [${uniqueId}]: Pre-select finished.`);
 
         // === Xác định ngày bắt đầu/kết thúc HK và Lấy sự kiện hiện có ===
-        let semesterStartDate = null;
-        let semesterEndDate = null;
-        let existingEventsSemesterSet = new Set();
-
-        logger.info(`BG [${uniqueId}]: Determining semester date range & fetching existing events...`);
-        showNotification(notificationTitle, "Xác định phạm vi HK & kiểm tra lịch...", 'basic', `sem-init-${uniqueId}`);
-
-        try { // Khối try lớn bao gồm cả lấy ngày và lấy sự kiện
+        let semesterStartDate = null; let semesterEndDate = null; let existingEventsSemesterSet = new Set();
+        logger.info(`BG [${uniqueId}]: Determining semester date range & fetching existing events...`); showNotification(notificationTitle, "Xác định phạm vi HK & kiểm tra lịch...", 'basic', `sem-init-${uniqueId}`);
+        try { // Khối try lớn
             if (weekOptions.length > 0) {
-                const firstWeek = weekOptions[0];
-                const lastWeek = weekOptions[weekOptions.length - 1];
-                logger.debug(`BG [${uniqueId}]: First week: ${firstWeek.text}, Last week: ${lastWeek.text}`);
-
-                offscreenDocWasClosed = false; // Reset
-
-                // -- Lấy ngày bắt đầu --
+                const firstWeek = weekOptions[0]; const lastWeek = weekOptions[weekOptions.length - 1];
+                offscreenDocWasClosed = false;
+                // Lấy ngày BĐ
                 logger.debug(`BG [${uniqueId}]: Fetching FIRST week data...`);
-                const firstWeekData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, firstWeek.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]);
-                if (!firstWeekData || firstWeekData.error || !firstWeekData.timetableHtml || !firstWeekData.dateRangeText) { throw new Error(`Lỗi data tuần đầu: ${firstWeekData?.error || 'Invalid'}`); }
-                logger.debug(`BG [${uniqueId}]: Parsing FIRST week data...`);
-                const firstWeekParseResult = await parseHtmlViaOffscreen(firstWeekData.timetableHtml, firstWeekData.dateRangeText);
-                semesterStartDate = firstWeekParseResult.weekStartDate;
-
-                // -- Lấy ngày kết thúc --
-                if (weekOptions.length > 1) {
-                    logger.debug(`BG [${uniqueId}]: Fetching LAST week data...`); await delay(INTER_WEEK_DELAY_MS);
-                    const lastWeekData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, lastWeek.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]);
-                    if (!lastWeekData || lastWeekData.error || !lastWeekData.timetableHtml || !lastWeekData.dateRangeText) { throw new Error(`Lỗi data tuần cuối: ${lastWeekData?.error || 'Invalid'}`); }
-                    logger.debug(`BG [${uniqueId}]: Parsing LAST week data...`);
-                    const lastWeekParseResult = await parseHtmlViaOffscreen(lastWeekData.timetableHtml, lastWeekData.dateRangeText);
-                    semesterEndDate = lastWeekParseResult.weekEndDate;
-                } else { semesterEndDate = firstWeekParseResult.weekEndDate; }
-
-                await ensureCloseOffscreen(); // Đóng offscreen
-
+                const firstWeekData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, firstWeek.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]); if (!firstWeekData || firstWeekData.error || !firstWeekData.timetableHtml || !firstWeekData.dateRangeText) { throw new Error(`Lỗi data tuần đầu: ${firstWeekData?.error || 'Invalid'}`); }
+                const firstWeekParseResult = await parseHtmlViaOffscreen(firstWeekData.timetableHtml, firstWeekData.dateRangeText); semesterStartDate = firstWeekParseResult.weekStartDate;
+                // Lấy ngày KT
+                if (weekOptions.length > 1) { logger.debug(`BG [${uniqueId}]: Fetching LAST week data...`); await delay(INTER_WEEK_DELAY_MS); const lastWeekData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, lastWeek.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]); if (!lastWeekData || lastWeekData.error || !lastWeekData.timetableHtml || !lastWeekData.dateRangeText) { throw new Error(`Lỗi data tuần cuối: ${lastWeekData?.error || 'Invalid'}`); } const lastWeekParseResult = await parseHtmlViaOffscreen(lastWeekData.timetableHtml, lastWeekData.dateRangeText); semesterEndDate = lastWeekParseResult.weekEndDate; } else { semesterEndDate = firstWeekParseResult.weekEndDate; }
+                await ensureCloseOffscreen();
                 if (!semesterStartDate || !semesterEndDate) { throw new Error("Không xác định được ngày BĐ/KT."); }
                 logger.info(`BG [${uniqueId}]: Semester range: ${semesterStartDate} to ${semesterEndDate}`);
-
             } else { throw new Error("Không tìm thấy tuần."); }
-
-            // -- Lấy sự kiện hiện có --
+            // Lấy sự kiện hiện có
             logger.info(`BG [${uniqueId}]: Fetching existing events for semester...`); showNotification(notificationTitle, "Kiểm tra lịch Google...", 'basic', `sem-fetch-all-${uniqueId}`);
             existingEventsSemesterSet = await fetchExistingCalendarEvents(semesterStartDate, semesterEndDate, accessToken);
             logger.info(`BG [${uniqueId}]: Found ${existingEventsSemesterSet.size} existing event keys.`); showNotification(notificationTitle, `Tìm thấy ${existingEventsSemesterSet.size} sự kiện đã có.`, 'basic', `sem-fetch-done-${uniqueId}`);
-
-        } catch (initialError) {
-            logger.error(`BG [${uniqueId}]: Error during initial setup:`, initialError);
-            await ensureCloseOffscreen();
-            throw new Error(`Lỗi khởi tạo đồng bộ HK: ${initialError.message}`);
-        }
-        // --- Kết thúc khối try lớn ---
-
+        } catch (initialError) { logger.error(`BG [${uniqueId}]: Error during initial setup:`, initialError); await ensureCloseOffscreen(); throw new Error(`Lỗi khởi tạo đồng bộ HK: ${initialError.message}`); }
 
         // === Week Loop ===
         logger.info(`BG [${uniqueId}]: Starting week loop (Delay: ${INTER_WEEK_DELAY_MS}ms)...`);
@@ -527,67 +496,69 @@ async function handleSemesterSync(userId, sendResponse) {
             offscreenDocWasClosed = false;
             if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) { logger.warn(`BG [${uniqueId}]: Stopping early...`); break; }
             const week = weekOptions[i];
-            const progressMsg = `Tuần ${i+1}/${weekOptions.length}: ${week.text}`;
-            logger.info(`BG [${uniqueId}]: --- Processing Week ${i+1} (${week.text}) ---`);
-            showNotification(notificationTitle, `Xử lý ${progressMsg}...`, 'basic', `sem-week-${i}-${uniqueId}`);
+            const weekNumStr = `${i+1}/${overallResult.weeksTotal}`;
+            logger.info(`BG [${uniqueId}]: --- Processing Week ${weekNumStr} (${week.text}) ---`);
+            showNotification(notificationTitle, `Bắt đầu xử lý tuần ${weekNumStr}: ${week.text}`, 'basic', `sem-week-start-${i}-${uniqueId}`);
             let scheduleListForWeek = [], weekStartDate = "", weekEndDate = "";
 
             try {
                  // Get Data
-                 logger.debug(`BG [${uniqueId}]: W${i+1} - Getting data...`); const extractedData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, week.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]); if (!extractedData || extractedData.error) throw new Error(extractedData?.error || `Lỗi lấy data W${i+1}.`); if (!extractedData.timetableHtml || !extractedData.dateRangeText) throw new Error(`Thiếu HTML/Ngày W${i+1}.`); logger.info(`BG [${uniqueId}]: W${i+1} - Data OK.`);
+                 showNotification(notificationTitle, `(W${weekNumStr}) Đang lấy dữ liệu...`, 'basic', `sem-get-data-${i}-${uniqueId}`);
+                 logger.debug(`BG [${uniqueId}]: W${weekNumStr} - Getting data...`); const extractedData = await executeScriptOnTab(targetTabId, 'getContent_selectWeekAndGetData', [WEEK_DROPDOWN_ID, week.value, TIMETABLE_TABLE_ID_STRING, DATE_SPAN_ID_STRING]); if (!extractedData || extractedData.error) throw new Error(extractedData?.error || `Lỗi lấy data W${weekNumStr}.`); if (!extractedData.timetableHtml || !extractedData.dateRangeText) throw new Error(`Thiếu HTML/Ngày W${weekNumStr}.`); logger.info(`BG [${uniqueId}]: W${weekNumStr} - Data OK.`);
                  // Parse
-                 logger.info(`BG [${uniqueId}]: W${i+1} - Parsing...`); showNotification(notificationTitle, `Phân tích ${progressMsg}...`, 'basic', `sem-parse-${i}-${uniqueId}`); const parseResult = await parseHtmlViaOffscreen(extractedData.timetableHtml, extractedData.dateRangeText); scheduleListForWeek = parseResult.scheduleList; weekStartDate = parseResult.weekStartDate; weekEndDate = parseResult.weekEndDate; logger.info(`BG [${uniqueId}]: W${i+1} (${weekStartDate}-${weekEndDate}) - Parsed ${scheduleListForWeek.length} events.`); if (scheduleListForWeek.length === 0) consecutiveEmptyWeeks++; else consecutiveEmptyWeeks = 0;
+                 showNotification(notificationTitle, `(W${weekNumStr}) Đang phân tích...`, 'basic', `sem-parse-${i}-${uniqueId}`);
+                 logger.info(`BG [${uniqueId}]: W${weekNumStr} - Parsing...`); const parseResult = await parseHtmlViaOffscreen(extractedData.timetableHtml, extractedData.dateRangeText); scheduleListForWeek = parseResult.scheduleList; weekStartDate = parseResult.weekStartDate; weekEndDate = parseResult.weekEndDate; logger.info(`BG [${uniqueId}]: W${weekNumStr} (${weekStartDate}-${weekEndDate}) - Parsed ${scheduleListForWeek.length} events.`); if (scheduleListForWeek.length === 0) consecutiveEmptyWeeks++; else consecutiveEmptyWeeks = 0;
                  await ensureCloseOffscreen();
 
                  // Filter & Add
                  if (scheduleListForWeek.length > 0) {
-                      logger.info(`BG [${uniqueId}]: W${i+1} - Filtering vs ${existingEventsSemesterSet.size} keys...`); showNotification(notificationTitle, `Lọc sự kiện (W${i+1})...`, 'basic', `sem-filter-${i}-${uniqueId}`);
+                      showNotification(notificationTitle, `(W${weekNumStr}) Đang lọc...`, 'basic', `sem-filter-${i}-${uniqueId}`);
+                      logger.info(`BG [${uniqueId}]: W${weekNumStr} - Filtering vs ${existingEventsSemesterSet.size} keys...`);
                       const eventsToAdd = []; const subjectColorMap={}; let nextColorIndex=0; let currentSkipped=0;
-                      for (const eventData of scheduleListForWeek) { const eventKey = `${eventData.subject}|${eventData.start_datetime_iso}|${eventData.end_datetime_iso}|${(eventData.room||'').trim()}`; if (!existingEventsSemesterSet.has(eventKey)) { const subjectName=eventData.subject||"N/A"; let colorId=subjectColorMap[subjectName]; if(!colorId){colorId=AVAILABLE_EVENT_COLORS[nextColorIndex++%AVAILABLE_EVENT_COLORS.length];subjectColorMap[subjectName]=colorId;} eventData.colorId=colorId; eventsToAdd.push(eventData); } else { currentSkipped++; } } overallResult.skipped += currentSkipped; logger.info(`BG [${uniqueId}]: W${i+1} - Filter done. Add: ${eventsToAdd.length}, Skip: ${currentSkipped}`);
+                      for (const eventData of scheduleListForWeek) { const eventKey = `${eventData.subject}|${eventData.start_datetime_iso}|${eventData.end_datetime_iso}|${(eventData.room||'').trim()}`; if (!existingEventsSemesterSet.has(eventKey)) { const subjectName=eventData.subject||"N/A"; let colorId=subjectColorMap[subjectName]; if(!colorId){colorId=AVAILABLE_EVENT_COLORS[nextColorIndex++%AVAILABLE_EVENT_COLORS.length];subjectColorMap[subjectName]=colorId;} eventData.colorId=colorId; eventsToAdd.push(eventData); } else { currentSkipped++; } } overallResult.skipped += currentSkipped; logger.info(`BG [${uniqueId}]: W${weekNumStr} - Filter done. Add: ${eventsToAdd.length}, Skip: ${currentSkipped}`);
                      if (eventsToAdd.length > 0) {
-                          logger.info(`BG [${uniqueId}]: W${i+1} - Adding ${eventsToAdd.length}...`); showNotification(notificationTitle, `Thêm ${eventsToAdd.length} (W${i+1})...`, 'basic', `sem-add-${i}-${uniqueId}`);
-                          const addResult = await addEventsToCalendar(eventsToAdd, accessToken); overallResult.added += addResult.added; overallResult.errors += addResult.errors; if (addResult.errors > 0) overallResult.weeksWithApiError++; logger.info(`BG [${uniqueId}]: W${i+1} - Add result: Added ${addResult.added}, Errors ${addResult.errors}`);
+                          showNotification(notificationTitle, `(W${weekNumStr}) Đang thêm ${eventsToAdd.length}...`, 'basic', `sem-add-${i}-${uniqueId}`);
+                          logger.info(`BG [${uniqueId}]: W${weekNumStr} - Adding ${eventsToAdd.length}...`);
+                          const addResult = await addEventsToCalendar(eventsToAdd, accessToken); overallResult.added += addResult.added; overallResult.errors += addResult.errors; if (addResult.errors > 0) overallResult.weeksWithApiError++; logger.info(`BG [${uniqueId}]: W${weekNumStr} - Add result: Added ${addResult.added}, Errors ${addResult.errors}`);
                           if (addResult.added > 0 && addResult.errors === 0) { for (const addedEvent of eventsToAdd) { const eventKey = `${addedEvent.subject}|${addedEvent.start_datetime_iso}|${addedEvent.end_datetime_iso}|${(addedEvent.room||'').trim()}`; existingEventsSemesterSet.add(eventKey); } logger.debug(`BG [${uniqueId}]: Updated semester set. New size: ${existingEventsSemesterSet.size}`); }
-                     } else { logger.info(`BG [${uniqueId}]: W${i+1} - No new events.`); }
-                 } else { logger.info(`BG [${uniqueId}]: W${i+1} - Skip API.`); }
+                     } else { logger.info(`BG [${uniqueId}]: W${weekNumStr} - No new events.`); }
+                 } else { logger.info(`BG [${uniqueId}]: W${weekNumStr} - Skip API.`); }
             } catch (weekError) {
-                logger.error(`BG [${uniqueId}]: W${i+1} Error:`, weekError);
-                overallResult.errors++; // Tính lỗi chung
-                consecutiveEmptyWeeks++; // Coi như tuần trống
-                showNotification(notificationTitle+"-Lỗi Tuần", `Lỗi W${i+1}: ${weekError.message}`, 'error', `sem-err-${i}-${uniqueId}`);
-                await ensureCloseOffscreen(); // Đóng offscreen khi có lỗi tuần
+                logger.error(`BG [${uniqueId}]: W${weekNumStr} Error:`, weekError);
+                overallResult.errors++;
+                consecutiveEmptyWeeks++;
+                showNotification(notificationTitle + "-Lỗi Tuần", `Lỗi tuần ${weekNumStr}: ${weekError.message}`, 'error', `sem-err-${i}-${uniqueId}`);
+                await ensureCloseOffscreen();
 
-                // === SỬA LỖI CÚ PHÁP TẠI ĐÂY ===
-                // Đơn giản hóa điều kiện để quyết định có throw lỗi ra ngoài không
-                let shouldRethrow = false;
-                if (weekError.message.includes("GAPI:") || weekError.message.includes("Token")) {
-                    shouldRethrow = true;
-                } else if (weekError.status && (weekError.status === 401 || weekError.status === 403)) {
-                    shouldRethrow = true;
+                // === Kiểm tra lỗi nghiêm trọng (Phiên bản rõ ràng hơn) ===
+                const errorMessage = weekError?.message || '';
+                const errorStatus = weekError?.status;
+                let isCritical = false;
+
+                if (errorMessage.includes("GAPI:") || errorMessage.includes("Token")) {
+                    isCritical = true;
+                } else if (errorStatus === 401 || errorStatus === 403) {
+                    isCritical = true;
                 }
 
-                if (shouldRethrow) {
+                if (isCritical) {
                     logger.warn(`BG [${uniqueId}]: Rethrowing critical week error...`);
-                    throw weekError; // Ném ra để catch lớn xử lý (lỗi xác thực/quyền)
+                    throw weekError; // Ném lỗi ra ngoài để dừng toàn bộ
+                } else {
+                    logger.warn(`BG [${uniqueId}]: Non-critical week error. Continuing...`);
+                    // Không làm gì thêm, vòng lặp sẽ tiếp tục
                 }
-                // Nếu không phải lỗi nghiêm trọng, chỉ log và tiếp tục tuần sau
-                logger.warn(`BG [${uniqueId}]: Non-critical week error. Continuing semester sync...`);
-                // === KẾT THÚC SỬA LỖI CÚ PHÁP ===
+                // === Kết thúc kiểm tra lỗi ===
             }
+            showNotification(notificationTitle, `Hoàn thành tuần ${weekNumStr}.`, 'basic', `sem-week-done-${i}-${uniqueId}`);
             logger.debug(`BG [${uniqueId}]: Delaying ${INTER_WEEK_DELAY_MS}ms...`); await delay(INTER_WEEK_DELAY_MS);
         } // End week loop
         logger.info(`BG [${uniqueId}]: Semester loop finished.`);
 
         // === Final Summary & Response ===
-        let processedCount = overallResult.weeksProcessed;
-        if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) { processedCount = overallResult.weeksProcessed - consecutiveEmptyWeeks; logger.info(`BG [${uniqueId}]: Adjusted processed count: ${processedCount}`); }
-        let finalMessage = `Đồng bộ HK xong! (${processedCount}/${overallResult.weeksTotal} tuần) Thêm: ${overallResult.added}, Bỏ qua: ${overallResult.skipped}, Lỗi: ${overallResult.errors}.`; // Sửa lại text lỗi
-        if (overallResult.weeksWithApiError > 0) finalMessage += ` (${overallResult.weeksWithApiError} tuần lỗi API)`;
-        if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) finalMessage += ` (Dừng sớm)`;
-        logger.info(`BG [${uniqueId}]: Final Summary: ${finalMessage}`);
-        if (overallResult.errors > 0 || overallResult.weeksWithApiError > 0) { finalStatus = { status: "error", message: finalMessage }; showNotification(notificationTitle + " - Có lỗi", finalMessage, 'error', `sem-done-err-${uniqueId}`); }
-        else { finalStatus = { status: "success", message: finalMessage }; showNotification(notificationTitle + " - Thành công", finalMessage, 'success', `sem-done-ok-${uniqueId}`); }
-
+        let processedCount = overallResult.weeksProcessed; if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) { processedCount = overallResult.weeksProcessed - consecutiveEmptyWeeks; logger.info(`BG [${uniqueId}]: Adjusted processed count: ${processedCount}`); }
+        let finalMessage = `Đồng bộ HK xong! (${processedCount}/${overallResult.weeksTotal} tuần) Thêm: ${overallResult.added}, Bỏ qua: ${overallResult.skipped}, Lỗi: ${overallResult.errors}.`; if (overallResult.weeksWithApiError > 0) finalMessage += ` (${overallResult.weeksWithApiError} tuần lỗi API)`; if (consecutiveEmptyWeeks >= CONSECUTIVE_EMPTY_WEEKS_LIMIT) finalMessage += ` (Dừng sớm)`; logger.info(`BG [${uniqueId}]: Final Summary: ${finalMessage}`);
+        if (overallResult.errors > 0 || overallResult.weeksWithApiError > 0) { finalStatus = { status: "error", message: finalMessage }; showNotification(notificationTitle + " - Có lỗi", finalMessage, 'error', `sem-done-err-${uniqueId}`); } else { finalStatus = { status: "success", message: finalMessage }; showNotification(notificationTitle + " - Thành công", finalMessage, 'success', `sem-done-ok-${uniqueId}`); }
         const endTime = Date.now(); const duration = startTime ? ((endTime - startTime) / 1000).toFixed(1) : null;
         await ensureCloseOffscreen(); safeSendResponse(finalStatus, duration);
 

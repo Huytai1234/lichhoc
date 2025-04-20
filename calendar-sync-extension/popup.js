@@ -5,13 +5,15 @@ const syncWeekButton = document.getElementById('syncWeekButton');
 const syncSemesterButton = document.getElementById('syncSemesterButton');
 const statusDiv = document.getElementById('status');
 const loader = document.getElementById('loader');
+const versionDisplay = document.getElementById('versionDisplay');
+const clearEmailLink = document.getElementById('clearEmailLink');
 
 // --- Cấu hình ---
 const MYUEL_TKB_URL_PATTERN = 'https://myuel.uel.edu.vn/Default.aspx?PageId=';
 
 const logger = { info: (...args) => console.log("[POPUP INFO]", ...args), warn: (...args) => console.warn("[POPUP WARN]", ...args), error: (...args) => console.error("[POPUP ERROR]", ...args), debug: (...args) => console.debug("[POPUP DEBUG]", ...args) };
 
-// Hàm cập nhật trạng thái (đã cập nhật để quản lý loader)
+// Hàm cập nhật trạng thái
 function updateStatus(message, type = 'info') {
     statusDiv.textContent = message;
     statusDiv.className = `status-${type}`; // Ví dụ: status-info, status-success
@@ -24,28 +26,28 @@ function updateStatus(message, type = 'info') {
         syncSemesterButton.disabled = true;
     } else {
         loader.classList.add('hidden'); // Ẩn loader
-        // Chỉ bật lại nút nếu không phải đang xử lý ban đầu (tránh bật lại quá sớm)
-        if(!isProcessing) {
-             syncWeekButton.disabled = false;
-             syncSemesterButton.disabled = false;
-        }
+         // Chỉ bật lại nút nếu không phải đang xử lý ban đầu
+         if(!isProcessing) {
+              syncWeekButton.disabled = false;
+              syncSemesterButton.disabled = false;
+         }
     }
 }
 
-// Load/Save User ID (Giữ nguyên)
+// Load/Save User ID và Hiển thị Phiên bản
 document.addEventListener('DOMContentLoaded', () => {
+    const manifest = chrome.runtime.getManifest();
+    versionDisplay.textContent = `Phiên bản: ${manifest.version}`; // Hiển thị phiên bản
+
     chrome.storage.local.get(['userId'], (result) => {
         if (result.userId) {
             userIdInput.value = result.userId;
             logger.info('Restored userId:', result.userId);
-        } else {
-             updateStatus('Nhập email và chọn chức năng.');
         }
+         // Luôn đặt trạng thái ban đầu sau khi kiểm tra userId
+         updateStatus('Nhập email và chọn chức năng.');
     });
-     // Ẩn loader khi popup mới mở
-     loader.classList.add('hidden');
-     // Đặt trạng thái ban đầu
-     updateStatus('Nhập email và chọn chức năng.');
+    loader.classList.add('hidden');
 });
 
 userIdInput.addEventListener('input', () => {
@@ -53,7 +55,7 @@ userIdInput.addEventListener('input', () => {
 });
 
 
-// --- Hàm xử lý gửi yêu cầu và nhận phản hồi (Đã sửa đổi để nhận duration từ background) ---
+// --- Hàm xử lý gửi yêu cầu và nhận phản hồi ---
 async function handleSyncRequest(action, userId, options = {}) {
     logger.info(`handleSyncRequest called for action: ${action}`);
     if (!userId || !userId.includes('@st.uel.edu.vn')) {
@@ -70,18 +72,13 @@ async function handleSyncRequest(action, userId, options = {}) {
     try {
         let messagePayload = { action: action, userId: userId, ...options };
 
-        // Kiểm tra tab đặc biệt cho đồng bộ tuần (chỉ cần kiểm tra URL, không cần await query nếu message đã có tabId)
         if (action === "startSync") {
-             const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-             if (!currentTab) {
-                 updateStatus('Lỗi: Không tìm thấy tab đang hoạt động.', 'error'); return;
-             }
-             logger.info("Popup: Current active tab:", currentTab.id, currentTab.url);
-             if (!currentTab.url || !currentTab.url.startsWith(MYUEL_TKB_URL_PATTERN)) {
-                  updateStatus(`Lỗi: Cần mở đúng trang TKB MyUEL trên tab hiện tại trước.`, 'error'); return;
-             }
-             messagePayload.tabId = currentTab.id; // Gửi ID tab
-             logger.debug("Payload for startSync:", messagePayload);
+            const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (!currentTab) { updateStatus('Lỗi: Không tìm thấy tab đang hoạt động.', 'error'); return; }
+            logger.info("Popup: Current active tab:", currentTab.id, currentTab.url);
+            if (!currentTab.url || !currentTab.url.startsWith(MYUEL_TKB_URL_PATTERN)) { updateStatus(`Lỗi: Cần mở đúng trang TKB MyUEL trên tab hiện tại trước.`, 'error'); return; }
+            messagePayload.tabId = currentTab.id; // Gửi ID tab
+            logger.debug("Payload for startSync:", messagePayload);
         } else {
             logger.debug("Payload for startSemesterSync:", messagePayload);
         }
@@ -93,11 +90,12 @@ async function handleSyncRequest(action, userId, options = {}) {
             // Lấy duration từ response do background trả về
             const duration = response?.duration;
 
+             // Kiểm tra lỗi giao tiếp trước tiên
              if (chrome.runtime.lastError) {
                  logger.error(`Error sending/receiving message (${action}):`, chrome.runtime.lastError);
                  finalMessage = `Lỗi giao tiếp (${action === 'startSync' ? 'Tuần' : 'Học kỳ'}): ${chrome.runtime.lastError.message || 'Không rõ'}`;
                  finalType = 'error';
-             } else if (response?.status === "success") {
+             } else if (response?.status === "success") { // Sau đó kiểm tra trạng thái từ background
                  logger.info(`Background success (${action}):`, response.message);
                  finalMessage = response.message;
                  finalType = 'success';
@@ -105,8 +103,10 @@ async function handleSyncRequest(action, userId, options = {}) {
                  logger.error(`Background error (${action}):`, response.message);
                  finalMessage = response.message;
                  finalType = 'error';
-             } else {
+             } else { // Trường hợp không có response hoặc response không đúng định dạng
                  logger.warn(`Unexpected response (${action}):`, response);
+                 finalMessage = "Nhận được phản hồi không mong muốn từ nền."; // Thông báo rõ hơn
+                 finalType = 'warn';
              }
 
              // Hiển thị trạng thái cuối cùng kèm thời gian (nếu có)
@@ -124,12 +124,20 @@ async function handleSyncRequest(action, userId, options = {}) {
 
 // --- Sự kiện nút Đồng bộ Tuần ---
 syncWeekButton.addEventListener('click', () => {
-    const userId = userIdInput.value.trim();
-    handleSyncRequest("startSync", userId);
+    handleSyncRequest("startSync", userIdInput.value.trim());
 });
 
 // --- Sự kiện nút Đồng bộ Học Kỳ ---
 syncSemesterButton.addEventListener('click', () => {
-    const userId = userIdInput.value.trim();
-    handleSyncRequest("startSemesterSync", userId);
+    handleSyncRequest("startSemesterSync", userIdInput.value.trim());
+});
+
+// --- Sự kiện cho nút/link Xóa Email ---
+clearEmailLink.addEventListener('click', () => {
+    chrome.storage.local.remove('userId', () => {
+        userIdInput.value = ''; // Xóa text trong ô input
+        logger.info('Stored userId cleared.');
+        updateStatus('Đã xóa email đã lưu. Nhập lại email.', 'info');
+        userIdInput.focus(); // Focus vào ô input
+    });
 });
