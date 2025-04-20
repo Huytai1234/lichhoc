@@ -14,7 +14,6 @@
   "host_permissions": [
     "https://myuel.uel.edu.vn/Modules/UIS/student/student_studyprogramhandler.aspx*",
     "https://myuel.uel.edu.vn/Default.aspx*",
-    "http://localhost:5001/*",
     "https://www.googleapis.com/*"
   ],
   "oauth2": {
