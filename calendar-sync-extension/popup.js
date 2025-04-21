@@ -78,7 +78,7 @@ async function handleSyncRequest(action, userId, options = {}) {
         initialProcessingMessage = 'Đang gửi yêu cầu đồng bộ tuần...';
     } else if (action === 'startSemesterSync') {
         // Thông báo rõ ràng về độ trễ ngẫu nhiên và lý do
-        initialProcessingMessage = 'Đang gửi yêu cầu đồng bộ học kỳ...\n(Sẽ có độ trễ ngẫu nhiên để tránh làm quá tải máy chủ trường. Vui lòng đợi!)';
+        initialProcessingMessage = 'Đang gửi yêu cầu đồng bộ học kỳ...\n(Sẽ có độ trễ ngẫu nhiên để tránh làm quá tải. Vui lòng đợi!)';
     } else {
         updateStatus('Hành động không xác định.', 'error');
         return;
