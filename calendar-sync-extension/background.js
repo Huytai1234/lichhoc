@@ -1,4 +1,4 @@
-// background.js - Main Service Worker (Modularized - Concurrency Lock Added)
+// background.js - Main Service Worker (Modularized - Injects defined locally)
 'use strict';
 
 // --- Imports ---
@@ -7,10 +7,8 @@ import { logger } from './logger.js';
 import { showNotification } from './notification.js';
 import { executeScriptOnTab } from './script-injection.js';
 import { forceGoogleLoginAndGetToken } from './google-auth.js';
-// Import the entire syncLogic module to access its exported functions
 import * as syncLogic from './sync-logic.js';
-// <<<<< ADDED: Import specific getter for sync state >>>>>
-import { getIsSyncInProgress } from './sync-logic.js';
+// Content inject functions are defined below
 
 // --- Initialization ---
 try {
@@ -25,171 +23,136 @@ try {
     logger.info("[BACKGROUND INIT] Loaded Client ID:", constants.GOOGLE_CLIENT_ID);
 } catch (e) {
     logger.error("BG ERROR: Init manifest reading failed.", e);
-    showNotification("Critical Configuration Error", `Could not load Client ID/Scopes: ${e.message}`, 'basic', 'init-fail');
+    showNotification("Lỗi Cấu Hình Nghiêm Trọng", `Không thể tải cấu hình Client ID/Scopes: ${e.message}`, 'basic', 'init-fail');
 }
 
 // ==========================================================================
 // Functions DEFINED here to be Injected into MyUEL Page
-// These need to be defined in this file so syncLogic can access them via refs.
-// They are executed in the MAIN world of the target page.
+// These need to be in the global scope of this service worker file so that
+// sync-logic.js can reference them via 'self.functionName' when calling
+// executeScriptOnTabRef.
 // ==========================================================================
 
 /** Injected function to get week options from the dropdown. */
 function getContent_getWeekOptions(dropdownId) {
-    // Note: console.log inside injected scripts appears in the *page's* console, not the background console.
-    console.log('[UEL Sync Injected] Getting week options...');
+    // Using constants directly here might fail inside injection,
+    // better to pass them or use literal values if they won't change.
+    // But for simplicity for now, we assume this works or is adjusted.
+    console.log('[CS getContent_getWeekOptions] Running...');
     const weekDropdown = document.getElementById(dropdownId); // dropdownId is passed as arg
     if (!weekDropdown) {
-        console.error(`[UEL Sync Injected] Dropdown ID '${dropdownId}' not found!`);
-        // Return an error object which background script can check
-        return { error: `Dropdown element with ID '${dropdownId}' not found on page.` };
+        console.error(`[CS] Dropdown ID '${dropdownId}' not found!`);
+        return { error: `Dropdown ID '${dropdownId}' không tìm thấy!` };
     }
     const options = [];
     for (let i = 0; i < weekDropdown.options.length; i++) {
         const option = weekDropdown.options[i];
-        // Standard filtering logic for valid week options
+        // Standard filtering logic
         if (option.value && option.value !== "-1" && option.value !== "" && option.value !== "0") {
             options.push({ value: option.value, text: option.text });
         }
     }
-    console.log(`[UEL Sync Injected] Found ${options.length} valid week options.`);
-    return options; // Return the array of valid options
+    console.log(`[CS] Found ${options.length} valid week options.`);
+    return options;
 }
 
 /**
- * Injected function to select a week, wait for page update using MutationObserver,
- * and then return the timetable HTML and date range text.
+ * Injected function to select a week, wait via MutationObserver, and return data.
  */
 async function getContent_selectWeekAndGetData(dropdownId, weekValue, tableId, dateId) {
-    // Unique prefix for console logs from this specific injection instance
-    const uniqueLogPrefix = `[UEL Sync Injected MO ${Date.now().toString().slice(-5)}]`;
+    const uniqueLogPrefix = `[CS MO ${Date.now().toString().slice(-5)}]`;
     console.log(`${uniqueLogPrefix} Selecting week value: ${weekValue}`);
     const weekDropdown = document.getElementById(dropdownId); // Args passed correctly
     const initialDateSpan = document.getElementById(dateId); // Args passed correctly
-    if (!weekDropdown) return { error: `[UEL Sync MO] Dropdown not found: ${dropdownId}` };
-    if (!initialDateSpan) return { error: `[UEL Sync MO] Initial date span not found: ${dateId}` };
+    if (!weekDropdown) return { error: `[CS MO] Dropdown not found: ${dropdownId}` };
+    if (!initialDateSpan) return { error: `[CS MO] Initial date span not found: ${dateId}` };
 
-    const oldDateText = initialDateSpan.innerText.trim(); // Get current date text to detect change
+    const oldDateText = initialDateSpan.innerText.trim();
     console.log(`${uniqueLogPrefix} Old date text: "${oldDateText}"`);
 
-    // Identify the element whose children will be observed for changes
-    // Usually a container around the timetable/date elements is best
-    const centerPanelId = "pnCenter"; // Assuming this is a stable ID containing the updated content
+    // Use literal ID or pass it if necessary, constants aren't available in injection scope easily
+    const centerPanelId = "pnCenter";
     let nodeToObserve = document.getElementById(centerPanelId);
     if (!nodeToObserve) {
-        // Fallback if the specific container isn't found
-        console.error(`${uniqueLogPrefix} Cannot find #${centerPanelId}. Falling back to observing document body.`);
+        console.error(`${uniqueLogPrefix} Cannot find #${centerPanelId}. Falling back to body.`);
         nodeToObserve = document.body;
-        if (!nodeToObserve) return { error: `[UEL Sync MO] Cannot find #${centerPanelId} or document body to observe.` };
+        if (!nodeToObserve) return { error: `[CS MO] Cannot find #${centerPanelId} or body.` };
     }
     console.log(`${uniqueLogPrefix} Observing node: ${nodeToObserve.tagName}${nodeToObserve.id ? '#' + nodeToObserve.id : ''}`);
 
-    // Use a Promise to handle the asynchronous nature of MutationObserver
     return new Promise((resolve, reject) => {
         let observer = null;
         let timeoutId = null;
-        const TIMEOUT_MS = constants.MUTATION_OBSERVER_TIMEOUT_MS; // Use constant from background
+        const TIMEOUT_MS = 18000; // Use literal or pass as argument
 
-        // Cleanup function to disconnect observer and clear timeout
         const cleanup = (reason) => {
-            if (observer) { try { observer.disconnect(); } catch (e) { /* Ignore */ } observer = null; }
+            if (observer) { try { observer.disconnect(); } catch (e) {} observer = null; }
             if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
-             console.log(`${uniqueLogPrefix} Observer cleanup (${reason}).`);
         };
 
-        // Callback function for the MutationObserver
         const mutationCallback = (mutationsList, obs) => {
-             // Check if the date span text has changed, indicating the page updated
-             const currentDateSpan = document.getElementById(dateId);
-             // Handle case where span might disappear during update
-             if (!currentDateSpan) { console.warn(`${uniqueLogPrefix} Date span disappeared during observation.`); return; }
-             const newDateText = currentDateSpan.innerText.trim();
+            const currentDateSpan = document.getElementById(dateId);
+            if (!currentDateSpan) { console.warn(`${uniqueLogPrefix} Date span disappeared.`); return; }
+            const newDateText = currentDateSpan.innerText.trim();
+            if (newDateText && newDateText !== oldDateText) {
+                console.log(`${uniqueLogPrefix} Date change detected via observer: "${newDateText}"`);
+                cleanup("Date changed (Observer)");
+                setTimeout(() => { // Stabilization delay
+                    const finalTable = document.getElementById(tableId); // Use passed tableId
+                    const finalDateSpan = document.getElementById(dateId);
+                    if (!finalTable || !finalDateSpan) {
+                        const missing = [!finalTable&&`Table#${tableId}`, !finalDateSpan&&`DateSpan#${dateId}`].filter(Boolean).join(', ');
+                        reject({ error: `[CS MO] Elements lost (${missing}).` }); return;
+                    }
+                    const finalTimetableHtml = finalTable.outerHTML;
+                    const finalDateRangeText = finalDateSpan.innerText.trim();
+                    if (!finalTimetableHtml || !finalDateRangeText) {
+                        const missingData = [!finalTimetableHtml && "HTML", !finalDateRangeText && "Date"].filter(Boolean).join('/');
+                        reject({ error: `[CS MO] Failed get final ${missingData}.` }); return;
+                    }
+                    console.log(`${uniqueLogPrefix} Final extraction OK (via Observer).`);
+                    resolve({ timetableHtml: finalTimetableHtml, dateRangeText: finalDateRangeText });
+                }, 150);
+            }
+        };
 
-             // If new date text is different from old, assume update is complete
-             if (newDateText && newDateText !== oldDateText) {
-                 console.log(`${uniqueLogPrefix} Date change detected via observer: "${newDateText}"`);
-                 cleanup("Date changed (Observer)");
-
-                 // Short delay for stability before grabbing final data
-                 setTimeout(() => {
-                     const finalTable = document.getElementById(tableId); // Use passed tableId
-                     const finalDateSpanAfterWait = document.getElementById(dateId);
-                     // Final check for elements before resolving
-                     if (!finalTable || !finalDateSpanAfterWait) {
-                         const missing = [!finalTable&&`Table#${tableId}`, !finalDateSpanAfterWait&&`DateSpan#${dateId}`].filter(Boolean).join(', ');
-                         reject({ error: `[UEL Sync MO] Elements lost after wait (${missing}).` });
-                         return;
-                     }
-                     // Get the final HTML and text
-                     const finalTimetableHtml = finalTable.outerHTML;
-                     const finalDateRangeText = finalDateSpanAfterWait.innerText.trim();
-                     // Ensure data was actually retrieved
-                     if (!finalTimetableHtml || !finalDateRangeText) {
-                         const missingData = [!finalTimetableHtml && "HTML", !finalDateRangeText && "Date"].filter(Boolean).join('/');
-                         reject({ error: `[UEL Sync MO] Failed get final ${missingData} after mutation detected.` });
-                         return;
-                     }
-                     console.log(`${uniqueLogPrefix} Final data extraction successful (via Observer).`);
-                     // Resolve the promise with the extracted data
-                     resolve({ timetableHtml: finalTimetableHtml, dateRangeText: finalDateRangeText });
-                 }, 150); // Small stabilization delay
-             }
-         };
-
-        // Create the observer instance
         try { observer = new MutationObserver(mutationCallback); }
-        catch (error) { reject({ error: `[UEL Sync MO] Failed to create MutationObserver: ${error.message}` }); return; }
+        catch (error) { reject({ error: `[CS MO] Create Observer fail: ${error.message}` }); return; }
 
-        // Configuration for the observer (watch for changes in the node's children list and subtree)
         const observerConfig = { childList: true, subtree: true };
+        try { observer.observe(nodeToObserve, observerConfig); console.log(`${uniqueLogPrefix} Observer started.`); }
+        catch (error) { cleanup("Observe Start Fail"); reject({ error: `[CS MO] Observer start fail: ${error.message}` }); return; }
 
-        // Start observing
-        try {
-            observer.observe(nodeToObserve, observerConfig);
-            console.log(`${uniqueLogPrefix} MutationObserver started.`);
-        } catch (error) {
-            cleanup("Observe Start Fail");
-            reject({ error: `[UEL Sync MO] Failed to start MutationObserver: ${error.message}` });
-            return;
-        }
-
-        // Set a timeout to prevent waiting indefinitely if no mutation occurs
         timeoutId = setTimeout(() => {
-            console.warn(`${uniqueLogPrefix} MutationObserver timed out (${TIMEOUT_MS}ms) for week value ${weekValue}.`);
+            console.warn(`${uniqueLogPrefix} Timeout (${TIMEOUT_MS}ms) week ${weekValue}.`);
             cleanup("Timeout (Observer)");
-            // As a last resort, check the date *after* timeout
-             const lastDateSpan = document.getElementById(dateId);
-             const lastTable = document.getElementById(tableId);
-             if (lastDateSpan && lastTable) {
-                 const lastDateText = lastDateSpan.innerText.trim();
-                 // If date changed *sometime* before timeout finished, try to resolve
-                 if (lastDateText && lastDateText !== oldDateText) {
-                     console.log(`${uniqueLogPrefix} [Timeout Check] Date change was detected before timeout finished! Resolving.`);
-                     resolve({ timetableHtml: lastTable.outerHTML, dateRangeText: lastDateText });
-                     return;
-                 }
-             }
-            // If no change detected even after timeout, reject
-            reject({ error: `[UEL Sync MO] Timeout (${TIMEOUT_MS / 1000}s) waiting for page update for week ${weekValue}. MutationObserver failed.` });
+            const lastDateSpan = document.getElementById(dateId);
+            const lastTable = document.getElementById(tableId);
+            if (lastDateSpan && lastTable) {
+                const lastDateText = lastDateSpan.innerText.trim();
+                if (lastDateText && lastDateText !== oldDateText) {
+                    console.log(`${uniqueLogPrefix} [Timeout Check] Change detected!`);
+                    resolve({ timetableHtml: lastTable.outerHTML, dateRangeText: lastDateText }); return;
+                }
+            }
+            reject({ error: `[CS MO] Timeout (${TIMEOUT_MS / 1000}s) week ${weekValue}. Observer failed.` });
         }, TIMEOUT_MS);
 
-        // Trigger the change on the dropdown *after* the observer is set up
-        console.log(`${uniqueLogPrefix} Dispatching 'change' event for week ${weekValue}...`);
+        console.log(`${uniqueLogPrefix} Dispatching 'change' event week ${weekValue}...`);
         try {
-            weekDropdown.value = weekValue; // Set the value
-            // Dispatch a 'change' event that the page's JavaScript likely listens for
+            weekDropdown.value = weekValue;
             weekDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log(`${uniqueLogPrefix} 'change' event dispatched. Observer is waiting...`);
+            console.log(`${uniqueLogPrefix} 'change' dispatched. Waiting...`);
         } catch (error) {
             cleanup("Dispatch Error");
-            reject({ error: `[UEL Sync MO] Failed to dispatch change event: ${error.message}` });
+            reject({ error: `[CS MO] Dispatch event fail: ${error.message}` });
         }
     }); // End Promise
 }
 
 
 // --- Inject Dependencies into Sync Logic Module ---
-// Pass references to the functions needed by syncLogic
+// Pass references to the functions defined ABOVE
 syncLogic.initializeSyncLogic({
     showNotificationRef: showNotification,
     executeScriptOnTabRef: executeScriptOnTab,
@@ -202,10 +165,8 @@ syncLogic.initializeSyncLogic({
 // Event Listeners
 // ==========================================================================
 
-// Listener for messages from other parts of the extension (e.g., popup)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    // Ignore messages intended for the offscreen document
-    if (message.target === 'offscreen') return false; // Indicates not handled here
+    if (message.target === 'offscreen') return false; // Not for us
 
     logger.info(`BG Listener: Received action='${message.action}'`);
 
@@ -213,54 +174,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "startSync": {
             logger.debug('[Msg Listener] Dispatching to syncLogic.handleSingleWeekSync');
             const { userId, tabId } = message;
-            // Basic validation
             if (!userId || !tabId) {
                 logger.error('[Msg Listener] Missing args for startSync.');
-                // Send error response immediately if possible
-                if (sendResponse) try { sendResponse({ status: "error", message: "Missing User ID or Tab ID." }); } catch (e) {/*ignore*/}
+                if (sendResponse) try { sendResponse({ status: "error", message: "Thiếu User ID/Tab ID." }); } catch (e) {}
                 return false; // Don't keep message channel open
             }
-            // Delegate to the handler in syncLogic. It now handles the concurrency check.
             syncLogic.handleSingleWeekSync(userId, tabId, sendResponse);
-            // Return true HERE to keep the message channel open for the *asynchronous* response from handleSingleWeekSync
-            return true;
+            return true; // YES, keep message channel open for async response
         }
         case "startSemesterSync": {
             logger.debug('[Msg Listener] Dispatching to syncLogic.handleSemesterSync');
             const { userId } = message;
-            // Basic validation
             if (!userId) {
                 logger.error('[Msg Listener] Missing userId for startSemesterSync.');
-                if (sendResponse) try { sendResponse({ status: "error", message: "Missing User ID." }); } catch (e) {/*ignore*/}
+                if (sendResponse) try { sendResponse({ status: "error", message: "Thiếu User ID." }); } catch (e) {}
                 return false; // Don't keep message channel open
             }
-            // Delegate to the handler in syncLogic. It now handles the concurrency check.
             syncLogic.handleSemesterSync(userId, sendResponse);
-            // Return true HERE to keep the message channel open for the *asynchronous* response from handleSemesterSync
-            return true;
+            return true; // YES, keep message channel open for async response
         }
-        // <<<<< ADDED: Handler for popup requesting current sync state >>>>>
-        case "getSyncState": {
-            logger.debug('[Msg Listener] Responding to getSyncState request.');
-            try {
-                // Call the exported getter function from syncLogic
-                const isRunning = getIsSyncInProgress(); // Use the imported function
-                // Send the current state back synchronously
-                sendResponse({ isRunning: isRunning });
-            } catch (e) {
-                logger.error("Error getting sync state:", e);
-                // Send a default state or error indicator if retrieval fails
-                sendResponse({ isRunning: false, error: "Could not retrieve sync state." });
-            }
-            // Return false because the response is sent synchronously within the handler
-            return false;
-        }
-        // <<<<< END ADDED Handler >>>>>
         default:
-            // Handle unknown actions
             logger.warn("BG Listener: Received unknown action:", message.action);
-            // Return false as we are not handling this action and don't need to keep the channel open
-            return false;
+            return false; // No handler for this action
     }
 });
 
@@ -268,5 +203,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Service Worker Initialization Log
 // ==========================================================================
 
-logger.info("Background service worker started (Modularized - Concurrency Lock Added).");
+logger.info("Background service worker started (Modularized - Injects defined locally).");
 logger.info("Features: MutationObserver Wait, Batch API Additions");
