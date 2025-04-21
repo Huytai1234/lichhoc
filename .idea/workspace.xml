@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/haa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/sync-logic.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/sync-logic.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/content.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +108,7 @@
       <workItem from="1745125790902" duration="1732000" />
       <workItem from="1745144495997" duration="15515000" />
       <workItem from="1745256830923" duration="55000" />
-      <workItem from="1745257035712" duration="767000" />
+      <workItem from="1745257035712" duration="1363000" />
     </task>
     <servers />
   </component>
