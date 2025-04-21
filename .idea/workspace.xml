@@ -5,9 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/constants.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/content-injects.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/google-api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/google-auth.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/logger.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/notification.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/offscreen-helpers.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/script-injection.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/sync-logic.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendar-sync-extension/utils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/calendar-sync-extension/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/background.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/popup.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/popup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/icon.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,22 +50,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flask server.Flask (app.py).executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.background.js.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Calendar-sync-extension.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flask server.Flask (app.py).executor": "Run",
+    "Node.js.background.js.executor": "Run",
+    "Python.Calendar-sync-extension.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/locnguyen/Downloads/Calendar-sync-extension/calendar-sync-extension",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/calendar-sync-extension" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Calendar-sync-extension" type="PythonConfigurationType" factoryName="Python">
       <module name="Calendar-sync-extension" />
@@ -101,7 +117,7 @@
       <workItem from="1745000263547" duration="22178000" />
       <workItem from="1745116520712" duration="7637000" />
       <workItem from="1745125790902" duration="1732000" />
-      <workItem from="1745144495997" duration="2074000" />
+      <workItem from="1745144495997" duration="10670000" />
     </task>
     <servers />
   </component>
