@@ -299,7 +299,7 @@ export async function handleSemesterSync(userId, sendResponse) {
 
     try {
         // ******** RANDOM START DELAY ********
-        const randomDelayMs = getRandomInt(1500, 4000); // Random delay between 2.5 and 6 seconds
+        const randomDelayMs = getRandomInt(1500, 4000); // Random delay between 1.5 and 4 seconds
         logger.info(`BG [${syncId}]: Applying random start delay: ${randomDelayMs}ms`);
         // Optional: Send an initial "Preparing..." message to the popup here if needed
         await delay(randomDelayMs); // Wait for the random duration
