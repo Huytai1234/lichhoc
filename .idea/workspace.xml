@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92eef835-aa30-4371-aafd-ee8b777c5f9c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/jjjjj.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/calendar-sync-extension/google-api.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/google-api.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calendar-sync-extension/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/calendar-sync-extension/sync-logic.js" beforeDir="false" afterPath="$PROJECT_DIR$/calendar-sync-extension/sync-logic.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -120,7 +118,7 @@
       <workItem from="1745467485897" duration="39000" />
       <workItem from="1745679714560" duration="47000" />
       <workItem from="1745854447305" duration="5000" />
-      <workItem from="1746846932078" duration="265000" />
+      <workItem from="1746846932078" duration="4900000" />
     </task>
     <servers />
   </component>
@@ -131,6 +129,6 @@
     <SUITE FILE_PATH="coverage/Calendar_sync_extension$haa.coverage" NAME="haa Coverage Results" MODIFIED="1745257347966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Calendar_sync_extension$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1744998852532" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Calendar_sync_extension$Calendar_sync_extension.coverage" NAME="Calendar-sync-extension Coverage Results" MODIFIED="1745091125767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/Calendar_sync_extension$jjjjj.coverage" NAME="jjjjj Coverage Results" MODIFIED="1746847133263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Calendar_sync_extension$jjjjj.coverage" NAME="jjjjj Coverage Results" MODIFIED="1746847198313" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
