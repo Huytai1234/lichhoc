@@ -1,5 +1,3 @@
-
-
 // google-api.js
 'use strict';
 
@@ -7,10 +5,13 @@ import { logger } from './logger.js';
 import * as constants from './constants.js';
 import { parseLocalDate, delay } from './utils.js';
 
+// Hằng số cho extendedProperties
+const EXT_PROP_APP_SOURCE_KEY = 'uelCalendarSyncSource';
+const EXT_PROP_APP_SOURCE_VALUE = 'UEL-TKB-Sync-Extension-v1.3'; // Cập nhật version nếu cần
+
 /** Generic fetch wrapper for Google APIs */
 async function fetchGoogleApi(url, method, accessToken, body = null) {
-    // ... (code for fetchGoogleApi - unchanged) ...
-     const fetchId = `gapi-${Date.now().toString().slice(-6)}`;
+    const fetchId = `gapi-${Date.now().toString().slice(-6)}`;
     logger.debug(`GAPI [${fetchId}]> ${method} ${url.substring(0, 100)}...`);
     if (!accessToken) throw new Error("[fetchGoogleApi] Access token is missing.");
 
@@ -51,8 +52,7 @@ async function fetchGoogleApi(url, method, accessToken, body = null) {
 
 /** Executes a Google API Batch Request */
 async function fetchGoogleApiBatch(batchUrl, batchBoundary, batchBody, accessToken) {
-    // ... (code for fetchGoogleApiBatch - unchanged) ...
-     const batchFetchId = `gapiBatch-${Date.now().toString().slice(-6)}`;
+    const batchFetchId = `gapiBatch-${Date.now().toString().slice(-6)}`;
     logger.debug(`GAPI Batch [${batchFetchId}]> POST ${batchUrl.substring(0, 100)}...`);
     logger.debug(`GAPI Batch [${batchFetchId}]  Body Length: ${batchBody?.length || 0}`);
 
@@ -88,12 +88,15 @@ async function fetchGoogleApiBatch(batchUrl, batchBoundary, batchBody, accessTok
     }
 }
 
-/** Fetches existing Google Calendar events within a date range. */
-export async function fetchExistingCalendarEvents(startDateStr, endDateStr, accessToken) {
-    // ... (code for fetchExistingCalendarEvents - unchanged, uses fetchGoogleApi and parseLocalDate) ...
-     const fetchExistingId = `fetchExist-${Date.now().toString().slice(-6)}`;
-    logger.info(`GAPI Events [${fetchExistingId}]: Fetching existing events for range: ${startDateStr} - ${endDateStr}`);
-    const existingEventsSet = new Set();
+/**
+ * Fetches existing Google Calendar events (created by this extension using extendedProperties)
+ * within a date range. Returns a Map where keys are eventKeys (summary|start|end|location)
+ * AND values are eventIds.
+ */
+export async function fetchExistingExtensionEventsWithIds(startDateStr, endDateStr, accessToken) {
+    const fetchExistingId = `fetchExtIds-${Date.now().toString().slice(-6)}`;
+    logger.info(`GAPI Events [${fetchExistingId}]: Fetching existing EXTENSION events (via extendedProperty) with IDs for range: ${startDateStr} - ${endDateStr}`);
+    const existingEventsMap = new Map(); // eventKey (summary) -> eventId
 
     try {
         const startDtObj = parseLocalDate(startDateStr);
@@ -103,14 +106,16 @@ export async function fetchExistingCalendarEvents(startDateStr, endDateStr, acce
         startDtObj.setHours(0, 0, 0, 0); endDtObj.setHours(23, 59, 59, 999);
         const timeMin = new Date(Date.UTC(startDtObj.getFullYear(), startDtObj.getMonth(), startDtObj.getDate())).toISOString();
         const timeMax = new Date(Date.UTC(endDtObj.getFullYear(), endDtObj.getMonth(), endDtObj.getDate(), 23, 59, 59, 999)).toISOString();
-        logger.debug(`GAPI Events [${fetchExistingId}]: Querying UTC ISO: ${timeMin} to ${timeMax}`);
 
         const eventsListUrl = new URL(`${constants.CALENDAR_API_BASE}/calendars/primary/events`);
-        eventsListUrl.searchParams.set('timeMin', timeMin); eventsListUrl.searchParams.set('timeMax', timeMax);
-        eventsListUrl.searchParams.set('singleEvents', 'true'); eventsListUrl.searchParams.set('maxResults', '250');
+        eventsListUrl.searchParams.set('timeMin', timeMin);
+        eventsListUrl.searchParams.set('timeMax', timeMax);
+        eventsListUrl.searchParams.set('singleEvents', 'true');
+        eventsListUrl.searchParams.set('maxResults', '250');
         eventsListUrl.searchParams.set('orderBy', 'startTime');
+        eventsListUrl.searchParams.set('privateExtendedProperty', `${EXT_PROP_APP_SOURCE_KEY}=${EXT_PROP_APP_SOURCE_VALUE}`);
 
-        let pageNum = 1; let totalEventsFetched = 0; let nextPageToken = null;
+        let pageNum = 1; let nextPageToken = null;
         do {
             logger.debug(`GAPI Events [${fetchExistingId}]: Fetching page ${pageNum}${nextPageToken ? ' (with pageToken)' : ''}...`);
             const currentUrl = new URL(eventsListUrl.toString());
@@ -118,55 +123,163 @@ export async function fetchExistingCalendarEvents(startDateStr, endDateStr, acce
 
             const responseData = await fetchGoogleApi(currentUrl.toString(), 'GET', accessToken);
             const items = responseData?.items || [];
-            totalEventsFetched += items.length;
-            logger.debug(`GAPI Events [${fetchExistingId}]: Page ${pageNum} received ${items.length}. Total: ${totalEventsFetched}`);
+            logger.debug(`GAPI Events [${fetchExistingId}]: Page ${pageNum} received ${items.length} items (expected to be extension events).`);
 
             for (const item of items) {
-                const summary = item.summary || ""; const startISO = item.start?.dateTime;
-                const endISO = item.end?.dateTime; const location = (item.location || "").trim();
-                if (summary && startISO && endISO) {
-                    const eventKey = `${summary}|${startISO}|${endISO}|${location}`;
-                    existingEventsSet.add(eventKey);
+                const summary = item.summary || "";
+                const startISO = item.start?.dateTime;
+                const endISO = item.end?.dateTime;
+                const location = (item.location || "").trim();
+                const eventId = item.id;
+
+                // Double check, though query should be enough
+                const eventPrivateProps = item.extendedProperties?.private;
+                if (eventPrivateProps && eventPrivateProps[EXT_PROP_APP_SOURCE_KEY] === EXT_PROP_APP_SOURCE_VALUE) {
+                    if (summary && startISO && endISO && eventId) {
+                        const eventKey = `${summary}|${startISO}|${endISO}|${location}`;
+                        if (!existingEventsMap.has(eventKey)) {
+                            existingEventsMap.set(eventKey, eventId);
+                        }
+                    }
+                } else {
+                   logger.warn(`GAPI Events [${fetchExistingId}]: Event ${eventId} received but missing/mismatched private prop. Summary: ${summary}. Props: ${JSON.stringify(eventPrivateProps)}`);
                 }
             }
-            nextPageToken = responseData?.nextPageToken; pageNum++;
+            nextPageToken = responseData?.nextPageToken;
+            pageNum++;
         } while (nextPageToken);
 
-        logger.info(`GAPI Events [${fetchExistingId}]: Fetch complete. Found ${existingEventsSet.size} unique keys.`);
-        return existingEventsSet;
+        logger.info(`GAPI Events [${fetchExistingId}]: Fetch complete. Found ${existingEventsMap.size} unique EXTENSION event keys (via extendedProperty) with IDs.`);
+        return existingEventsMap;
     } catch (error) {
-        logger.error(`GAPI Events [${fetchExistingId}]: ERROR fetching events:`, error);
-        throw new Error(`Lỗi lấy sự kiện GCal: ${error.message}`);
+        logger.error(`GAPI Events [${fetchExistingId}]: ERROR fetching extension events (via extendedProperty) with IDs:`, error);
+        throw new Error(`Lỗi lấy ID sự kiện (extension) GCal: ${error.message}`);
     }
 }
 
+
+/** Deletes specified events from Google Calendar using Batch requests. */
+export async function deleteEventsFromCalendar(eventIdsToDelete, accessToken) {
+    const deleteEventsId = `delEventsBatch-${Date.now().toString().slice(-6)}`;
+    if (!eventIdsToDelete || eventIdsToDelete.length === 0) {
+        logger.info(`GAPI Events [${deleteEventsId}]: No event IDs provided for deletion.`);
+        return { deleted: 0, errors: 0 };
+    }
+
+    logger.info(`GAPI Events [${deleteEventsId}]: Deleting ${eventIdsToDelete.length} events via Batch...`);
+    let deletedCount = 0; let errorCount = 0;
+    const batchBoundary = `batch_delete_${Date.now()}`;
+    const batchUrl = constants.BATCH_CALENDAR_ENDPOINT;
+    let batchRequestBody = '';
+    let contentIdCounter = 0;
+
+    for (const eventId of eventIdsToDelete) {
+        contentIdCounter++;
+        const deleteUrlRelative = `/calendar/v3/calendars/primary/events/${eventId}`;
+        batchRequestBody += `--${batchBoundary}\r\n`;
+        batchRequestBody += `Content-Type: application/http\r\n`;
+        batchRequestBody += `Content-ID: item-delete-${contentIdCounter}\r\n\r\n`;
+        batchRequestBody += `DELETE ${deleteUrlRelative}\r\n`;
+        batchRequestBody += `Content-Length: 0\r\n\r\n`;
+    }
+    batchRequestBody += `--${batchBoundary}--\r\n`;
+
+    try {
+        const batchResult = await fetchGoogleApiBatch(batchUrl, batchBoundary, batchRequestBody, accessToken);
+        if (!batchResult || !batchResult.responseText || !batchResult.responseContentType) {
+            logger.error(`GAPI Batch [${deleteEventsId}]: Batch delete call returned null or invalid response.`);
+            errorCount = eventIdsToDelete.length;
+            return { deleted: 0, errors: errorCount };
+        }
+
+        const responseBoundaryMatch = batchResult.responseContentType.match(/boundary=(.+)/i);
+        const responseBoundary = responseBoundaryMatch?.[1]?.trim();
+
+        if (!responseBoundary) {
+            logger.error(`GAPI Batch [${deleteEventsId}]: No boundary found in batch delete response. Resp text: ${batchResult.responseText.substring(0,500)}`);
+            errorCount = eventIdsToDelete.length;
+        } else {
+            logger.debug(`GAPI Batch [${deleteEventsId}]: Parsing batch delete response with boundary: ${responseBoundary}`);
+            const responseParts = batchResult.responseText.split(`--${responseBoundary}`);
+
+            for (let i = 1; i < responseParts.length - 1; i++) {
+                const part = responseParts[i].trim();
+                if (!part) continue;
+
+                try {
+                    const httpStatusLineMatch = part.match(/^HTTP\/[\d\.]+\s+(\d+)/im);
+                    const statusCode = httpStatusLineMatch?.[1] ? parseInt(httpStatusLineMatch[1], 10) : -1;
+
+                    if (statusCode === 204) {
+                        deletedCount++;
+                    } else if (statusCode !== -1) {
+                        errorCount++;
+                        logger.error(`GAPI Batch [${deleteEventsId}]: Sub-request delete FAIL. Status: ${statusCode}. Part content (first 300 chars): ${part.substring(0, 300)}`);
+                    } else {
+                        errorCount++;
+                        logger.error(`GAPI Batch [${deleteEventsId}]: Sub-request delete FAIL. Could not parse status from part. Part content (first 300 chars): ${part.substring(0, 300)}`);
+                    }
+                } catch (parseErr) {
+                    errorCount++;
+                    logger.error(`GAPI Batch [${deleteEventsId}]: Error parsing individual batch delete response part: ${parseErr}. Part: ${part.substring(0,200)}`);
+                }
+            }
+             if (deletedCount + errorCount !== eventIdsToDelete.length) {
+                logger.warn(`GAPI Batch [${deleteEventsId}]: Count mismatch after parsing delete response. Expected ${eventIdsToDelete.length}, got ${deletedCount} deleted, ${errorCount} errors.`);
+            }
+        }
+    } catch (batchError) {
+        logger.error(`GAPI Batch [${deleteEventsId}]: Batch delete request itself failed:`, batchError);
+        errorCount = eventIdsToDelete.length;
+        deletedCount = 0;
+    }
+
+    logger.info(`GAPI Batch [${deleteEventsId}]: Finished Deletion. Deleted: ${deletedCount}, Errors: ${errorCount}`);
+    return { deleted: deletedCount, errors: errorCount };
+}
+
+
 /** Adds new events to Google Calendar using Batch requests. */
 export async function addEventsToCalendar(eventsToAdd, accessToken) {
-    // ... (code for addEventsToCalendar - unchanged, uses fetchGoogleApiBatch and delay) ...
-     const addEventsId = `addEventsBatch-${Date.now().toString().slice(-6)}`;
+    const addEventsId = `addEventsBatch-${Date.now().toString().slice(-6)}`;
     if (!eventsToAdd || eventsToAdd.length === 0) { logger.info(`GAPI Events [${addEventsId}]: No events.`); return { added: 0, errors: 0 }; }
 
-    logger.info(`GAPI Events [${addEventsId}]: Adding ${eventsToAdd.length} via Batch...`);
+    logger.info(`GAPI Events [${addEventsId}]: Adding ${eventsToAdd.length} via Batch (using extendedProperty)...`);
     let addedCount = 0; let errorCount = 0;
     const subjectColorMap = {}; let nextColorIndex = 0; const numColors = constants.AVAILABLE_EVENT_COLORS.length;
 
-    const batchBoundary = `batch_${Date.now()}`;
+    const batchBoundary = `batch_add_${Date.now()}`;
     const insertUrlRelative = `/calendar/v3/calendars/primary/events`;
     let batchRequestBody = ''; let contentIdCounter = 0;
-    logger.info(`GAPI Batch [${addEventsId}]: Preparing batch: ${batchBoundary}`);
 
     for (const eventData of eventsToAdd) {
-        contentIdCounter++; const subjectName = eventData.subject || "Sự kiện KCL";
+        contentIdCounter++;
+        const subjectName = eventData.subject || "Sự kiện KCL";
         let colorId = subjectColorMap[subjectName];
         if (!colorId) { colorId = constants.AVAILABLE_EVENT_COLORS[nextColorIndex % numColors]; subjectColorMap[subjectName] = colorId; nextColorIndex++; }
         const desc = `GV: ${eventData.teacher || 'N/A'}\nCS: ${eventData.location || 'N/A'}${eventData.periods ? `\nTiết: ${eventData.periods}` : ''}\nPhòng: ${eventData.room || 'N/A'}${eventData.description_extra || ''}`;
-        const eventBody = { summary: subjectName, location: eventData.room || '', description: desc,
+
+        const eventBody = {
+            summary: subjectName, // Summary gốc, không prefix
+            location: eventData.room || '',
+            description: desc,
             start: { dateTime: eventData.start_datetime_iso, timeZone: constants.VIETNAM_TIMEZONE_IANA },
             end: { dateTime: eventData.end_datetime_iso, timeZone: constants.VIETNAM_TIMEZONE_IANA },
-            colorId: colorId, reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 15 }] } };
+            colorId: colorId,
+            reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 15 }] },
+            extendedProperties: {
+                private: {
+                    [EXT_PROP_APP_SOURCE_KEY]: EXT_PROP_APP_SOURCE_VALUE
+                }
+            }
+        };
         const eventBodyString = JSON.stringify(eventBody);
-        batchRequestBody += `--${batchBoundary}\r\nContent-Type: application/http\r\nContent-ID: item-${contentIdCounter}\r\n\r\n`;
-        batchRequestBody += `POST ${insertUrlRelative}\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: ${new TextEncoder().encode(eventBodyString).length}\r\n\r\n`;
+        batchRequestBody += `--${batchBoundary}\r\n`;
+        batchRequestBody += `Content-Type: application/http\r\n`;
+        batchRequestBody += `Content-ID: item-add-${contentIdCounter}\r\n\r\n`;
+        batchRequestBody += `POST ${insertUrlRelative}\r\n`;
+        batchRequestBody += `Content-Type: application/json; charset=UTF-8\r\n`;
+        batchRequestBody += `Content-Length: ${new TextEncoder().encode(eventBodyString).length}\r\n\r\n`;
         batchRequestBody += `${eventBodyString}\r\n`;
     }
     batchRequestBody += `--${batchBoundary}--\r\n`;
@@ -174,37 +287,66 @@ export async function addEventsToCalendar(eventsToAdd, accessToken) {
 
     try {
         const batchResult = await fetchGoogleApiBatch(constants.BATCH_CALENDAR_ENDPOINT, batchBoundary, batchRequestBody, accessToken);
-        if (!batchResult) { logger.warn(`GAPI Batch [${addEventsId}]: Call skipped/null.`); errorCount = eventsToAdd.length; return { added: 0, errors: errorCount }; }
+        if (!batchResult || !batchResult.responseText || !batchResult.responseContentType) {
+             logger.warn(`GAPI Batch [${addEventsId}]: Add call skipped/null or invalid response.`);
+             errorCount = eventsToAdd.length;
+             return { added: 0, errors: errorCount };
+        }
 
-        const responseBoundaryMatch = batchResult.responseContentType?.match(/boundary=(.+)/i);
+        const responseBoundaryMatch = batchResult.responseContentType.match(/boundary=(.+)/i);
         const responseBoundary = responseBoundaryMatch?.[1]?.trim();
-        if (!responseBoundary) { logger.error(`GAPI Batch [${addEventsId}]: No boundary in response.`); errorCount = eventsToAdd.length; }
-        else {
-            logger.debug(`GAPI Batch [${addEventsId}]: Parsing response boundary: ${responseBoundary}`);
+        if (!responseBoundary) {
+            logger.error(`GAPI Batch [${addEventsId}]: No boundary in add response. Resp text: ${batchResult.responseText.substring(0,500)}`);
+            errorCount = eventsToAdd.length;
+        } else {
+            logger.debug(`GAPI Batch [${addEventsId}]: Parsing add response boundary: ${responseBoundary}`);
             const responseParts = batchResult.responseText.split(`--${responseBoundary}`);
             for (let i = 1; i < responseParts.length - 1; i++) {
                 const part = responseParts[i].trim(); if (!part) continue;
                 try {
-                    const contentIdMatch = part.match(/Content-ID:\s*(?:<)?response-item-(\d+)(?:>)?/i);
+                    const contentIdMatch = part.match(/Content-ID:\s*(?:<)?response-item-add-(\d+)(?:>)?/i);
                     const respId = contentIdMatch?.[1] ? parseInt(contentIdMatch[1], 10) : -1;
+
                     let httpStartIndex = part.indexOf('HTTP/'); if (httpStartIndex === -1) { logger.warn(`[${addEventsId}] No HTTP status line part ${i}.`); errorCount++; continue; }
                     const httpResponsePart = part.substring(httpStartIndex);
                     const statusMatch = httpResponsePart.match(/^HTTP\/[\d\.]+\s+(\d+)/i);
                     const statusCode = statusMatch?.[1] ? parseInt(statusMatch[1], 10) : -1;
+
                     let bodyStartIndex = httpResponsePart.indexOf('\r\n\r\n'); if (bodyStartIndex === -1) bodyStartIndex = httpResponsePart.indexOf('\n\n');
                     const httpBodyString = (bodyStartIndex !== -1) ? httpResponsePart.substring(bodyStartIndex + (httpResponsePart.includes('\r\n\r\n') ? 4 : 2)).trim() : "";
-                    const origIdx = respId - 1; const origSubj = (origIdx >= 0 && origIdx < eventsToAdd.length) ? eventsToAdd[origIdx].subject : `Unknown (ID ${respId})`;
-                    logger.debug(`GAPI Batch [${addEventsId}]: Part ${i} - ID:${respId}, Status:${statusCode}, Subj:${origSubj}`);
-                    if (respId === -1 || statusCode === -1) { logger.error(`[${addEventsId}] Failed parse ID/Status part ${i}.`); errorCount++; continue; }
-                    if (statusCode >= 200 && statusCode < 300) {
-                        addedCount++; try { const res = JSON.parse(httpBodyString); logger.info(`[${addEventsId}] Sub-req ${respId} (${origSubj}) OK. ID: ${res?.id}`); } catch(e){ logger.info(`[${addEventsId}] Sub-req ${respId} (${origSubj}) OK (${statusCode}), parse body fail.`);}
-                    } else { errorCount++; logger.error(`[${addEventsId}] Sub-req ${respId} (${origSubj}) FAIL. Status: ${statusCode}. Body: ${httpBodyString.substring(0, 300)}`); if (statusCode === 403 || statusCode === 429) { logger.warn(`[${addEventsId}] Rate Limit/Quota (${statusCode}) sub-req ${respId}?`); await delay(250); } }
-                } catch(parseErr) { logger.error(`[${addEventsId}] Error parsing part ${i}: ${parseErr}.`); errorCount++; }
-            }
-            if (addedCount + errorCount !== eventsToAdd.length) { logger.warn(`[${addEventsId}] Count mismatch: ${addedCount}+${errorCount} != ${eventsToAdd.length}.`); }
-        }
-    } catch (batchError) { logger.error(`GAPI Batch [${addEventsId}]: Batch request failed:`, batchError); errorCount = eventsToAdd.length; addedCount = 0; if (batchError.status === 403 || batchError.status === 429) { logger.warn(`[${addEventsId}] Rate Limit/Quota (${batchError.status}) Batch? Delay...`); await delay(1500); } }
 
-    logger.info(`GAPI Batch [${addEventsId}]: Finished. Added: ${addedCount}, Errors: ${errorCount}`);
+                    const origIdx = respId - 1;
+                    const origSubj = (origIdx >= 0 && origIdx < eventsToAdd.length) ? eventsToAdd[origIdx].subject : `Unknown (Add ID ${respId})`;
+                    logger.debug(`GAPI Batch [${addEventsId}]: Add Part ${i} - ID:${respId}, Status:${statusCode}, Subj:${origSubj}`);
+
+                    if (respId === -1 || statusCode === -1) { logger.error(`[${addEventsId}] Failed parse Add ID/Status part ${i}.`); errorCount++; continue; }
+
+                    if (statusCode >= 200 && statusCode < 300) {
+                        addedCount++;
+                        try {
+                            const res = JSON.parse(httpBodyString); logger.info(`[${addEventsId}] Sub-req Add ${respId} (${origSubj}) OK. GCal ID: ${res?.id}`);
+                        } catch(e){ logger.info(`[${addEventsId}] Sub-req Add ${respId} (${origSubj}) OK (${statusCode}), but failed to parse response body.`);}
+                    } else {
+                        errorCount++;
+                        logger.error(`[${addEventsId}] Sub-req Add ${respId} (${origSubj}) FAIL. Status: ${statusCode}. Body: ${httpBodyString.substring(0, 300)}`);
+                        if (statusCode === 403 || statusCode === 429) { logger.warn(`[${addEventsId}] Rate Limit/Quota (${statusCode}) for Add sub-req ${respId}?`); await delay(250); }
+                    }
+                } catch(parseErr) {
+                    logger.error(`[${addEventsId}] Error parsing Add part ${i}: ${parseErr}. Part: ${part.substring(0,200)}`);
+                    errorCount++;
+                }
+            }
+             if (addedCount + errorCount !== eventsToAdd.length) {
+                logger.warn(`[${addEventsId}] Add Count mismatch: ${addedCount} added + ${errorCount} errors != ${eventsToAdd.length} total.`);
+            }
+        }
+    } catch (batchError) {
+        logger.error(`GAPI Batch [${addEventsId}]: Batch Add request failed:`, batchError);
+        errorCount = eventsToAdd.length;
+        addedCount = 0;
+        if (batchError.status === 403 || batchError.status === 429) { logger.warn(`[${addEventsId}] Rate Limit/Quota (${batchError.status}) for Batch Add? Delaying...`); await delay(1500); }
+    }
+
+    logger.info(`GAPI Batch [${addEventsId}]: Finished Adding. Added: ${addedCount}, Errors: ${errorCount}`);
     return { added: addedCount, errors: errorCount };
 }
